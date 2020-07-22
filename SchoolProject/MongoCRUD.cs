@@ -6,8 +6,8 @@ namespace SchoolProject
     //This is the MongoCRUD class. This is where we have all methods relating to Mongo DB interactions.
     public class MongoCRUD
     {
+        public string database = "OEA";
         private static MongoCRUD instance;
-        private MongoCRUD() { }
 
         public static MongoCRUD Instance
         {
@@ -24,8 +24,8 @@ namespace SchoolProject
 
         private IMongoDatabase db;
 
-        public MongoCRUD(string database)
-        {
+        public MongoCRUD()
+        {   
             var client = new MongoClient("mongodb+srv://high:everythingIsAwesome@highcluster.tdcb9.mongodb.net/OEA?retryWrites=true&w=majority");
             db = client.GetDatabase(database);
         }

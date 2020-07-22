@@ -24,5 +24,10 @@ namespace SchoolProject
             // Replies in the channel the command was used, with an empty string, non-text to speech, and using the Embed we made earlier.
             await ReplyAsync("", false, builder.Build());
         }
+        [Command("test")]
+        public async Task TestAsync(string information)
+        {
+            await ReplyAsync("I worked");
+        }
     }
 }
