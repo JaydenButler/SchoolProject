@@ -1,0 +1,4 @@
+/Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.csprojAssemblyReference.cache
+/Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.AssemblyInfoInputs.cache
+/Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.AssemblyInfo.cs
+/Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.csproj.CoreCompileInputs.cache
