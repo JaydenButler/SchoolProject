@@ -17,6 +17,7 @@ namespace SchoolProject
         public DiscordSocketClient _client;
         public CommandService _commands;
         public IServiceProvider _services;
+        public MongoCRUD mongoCRUD = new MongoCRUD("OEA");
 
         static void Main(string[] args) => new DiscordBot().RunBotAsync().GetAwaiter().GetResult();
 

@@ -1,9 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
-using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,31 +23,6 @@ namespace SchoolProject
 
             // Replies in the channel the command was used, with an empty string, non-text to speech, and using the Embed we made earlier.
             await ReplyAsync("", false, builder.Build());
-        }
-    }
-    //This is the MongoCRUD class. This is where we have all methods relating to Mongo DB interactions.
-    public class MongoCRUD
-    {
-        private IMongoDatabase db;
-
-        public MongoCRUD(string database)
-        {
-            var client = new MongoClient("mongodb+srv://high:everythingIsAwesome@highcluster.tdcb9.mongodb.net/OEA?retryWrites=true&w=majority");
-            db = client.GetDatabase(database);
-        }
-
-        public void InsertRecord<T>(string table, T record)
-        {
-            var collection = db.GetCollection<T>(table);
-            collection.InsertOne(record);
-        }
-        //This don't ded work
-        public T LoadRecordById<T>(string table, string user)
-        {
-            var collection = db.GetCollection<T>(table);
-            var filter = Builders<T>.Filter.Eq("User", user);
-
-            return collection.Find(filter).First();
         }
     }
 }
