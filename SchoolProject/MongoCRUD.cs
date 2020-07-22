@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 using System.Linq;
 
 namespace SchoolProject
@@ -25,7 +26,8 @@ namespace SchoolProject
         private IMongoDatabase db;
 
         public MongoCRUD()
-        {   
+        {
+
             var client = new MongoClient("mongodb+srv://high:everythingIsAwesome@highcluster.tdcb9.mongodb.net/OEA?retryWrites=true&w=majority");
             db = client.GetDatabase(database);
         }
@@ -35,25 +37,26 @@ namespace SchoolProject
             var collection = db.GetCollection<T>(table);
             collection.InsertOne(record);
         }
-        
-        public T LoadRecordById<T>(string table, string user)
+            
+        public T LoadRecordById<T>(string org)
         {
-            var collection = db.GetCollection<T>(table);
-            var filter = Builders<T>.Filter.Eq("Org", user);
+            var collection = db.GetCollection<T>("OrgDatabase");
+            var filter = Builders<T>.Filter.Eq("OrgName", org.ToLower());
 
             return collection.Find(filter).First();
         }
     }
 
-    public struct OrgModel
+    public class OrgModel
     {
+        [BsonId]
         public string OrgName { get; set; }
         public string WebsiteLink { get; set; }
         public SocialModel socialModel;
         public string LogoLink { get; set; }
     }
 
-    public struct SocialModel
+    public class SocialModel
     {
         public string TwitterLink { get; set; }
         public string FacebookLink { get; set; }

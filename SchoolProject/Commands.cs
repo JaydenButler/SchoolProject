@@ -24,10 +24,22 @@ namespace SchoolProject
             // Replies in the channel the command was used, with an empty string, non-text to speech, and using the Embed we made earlier.
             await ReplyAsync("", false, builder.Build());
         }
-        [Command("test")]
-        public async Task TestAsync(string information)
+        [Command("set")]
+        public async Task AddOrgAsync(string collection, string orgName, string twitterLink, string facebookLink,
+            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, [Remainder] string logoLink)
         {
+            SocialModel socialModel = new SocialModel { TwitterLink = twitterLink, FacebookLink =  facebookLink, InstagramLink = instagramLink,
+            YoutubeLinks = youtubeLink, TwitchTeam = twitchTeam};
+            OrgModel orgModel = new OrgModel { OrgName = orgName, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink};
+            MongoCRUD.Instance.InsertRecord(collection, orgModel);
             await ReplyAsync("I worked");
+        }
+        [Command("get")]
+        public async Task ReadOrgAsync(string org)
+        {
+            var rec = MongoCRUD.Instance.LoadRecordById<OrgModel>(org);
+            await ReplyAsync($"Org Name: __**{rec.OrgName}**__\nTwitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: <{rec.socialModel.FacebookLink}>\n" +
+                $"Instagram Link: <{rec.socialModel.InstagramLink}>\nTwitch Team: <{rec.socialModel.TwitchTeam}>\nWebsite Link: <{rec.WebsiteLink}>\n Logo Link <{rec.LogoLink}>");
         }
     }
 }
