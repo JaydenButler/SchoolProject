@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SchoolProject
@@ -41,9 +43,15 @@ namespace SchoolProject
         public T LoadRecordById<T>(string org)
         {
             var collection = db.GetCollection<T>("OrgDatabase");
-            var filter = Builders<T>.Filter.Eq("OrgName", org.ToLower());
+            var filter = Builders<T>.Filter.Eq("OrgName", org);
 
             return collection.Find(filter).First();
+        }
+        public List<T> LoadRecords<T>()
+        {
+            var collection = db.GetCollection<T>("OrgDatabase");
+
+            return collection.Find(new BsonDocument()).ToList();
         }
     }
 

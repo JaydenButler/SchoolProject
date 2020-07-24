@@ -17,7 +17,7 @@ namespace SchoolProject
         public DiscordSocketClient _client;
         public CommandService _commands;
         public IServiceProvider _services;
-
+        
         static void Main(string[] args) => new DiscordBot().RunBotAsync().GetAwaiter().GetResult();
 
         // This is a singleton.
@@ -57,6 +57,11 @@ namespace SchoolProject
             // Log the Bot in, as a Bot, using the token retrieved earlier, then start the bot.
             await _client.LoginAsync(Discord.TokenType.Bot, botToken);
             await _client.StartAsync();
+
+            Mute.Instance.CheckMutesAsync();
+
+            Console.WriteLine("Bot online and running!");
+
             // This is so the bot never closes unless there is a bug or error.
             await Task.Delay(-1);
         }
@@ -87,7 +92,7 @@ namespace SchoolProject
             if (msg.HasStringPrefix("!", ref argumentPosition))
             {
                 // Injects the Context variable for the message.
-                var context = new SocketCommandContext(_client, msg);                
+                var context = new SocketCommandContext(_client, msg);
 
                 // Tries to find and execute a command with the remainder of the message.
                 // If there's no command for the remainder of the message, the result will comeback with an Unknown Command message.
