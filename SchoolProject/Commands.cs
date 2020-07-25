@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace SchoolProject
         {
             Moderator moderator = new Moderator { Username = Context.User.Username, Discriminator = Context.User.DiscriminatorValue, id = Context.User.Id};
             Target target = new Target { Username = targetFake.Username, Discriminator = targetFake.DiscriminatorValue, id = targetFake.Id };
-            MuteModel muteModel = new MuteModel { timeMuted = System.DateTime.Now, isMuted = true ,moderator = moderator, target = target };
+            MuteModel muteModel = new MuteModel { timeMuted = System.DateTime.Now, isMuted = true ,moderator = moderator, target = target, guildId = Context.Guild.Id};
             #region Adding time shit
             if (time.Contains("d"))
             {
@@ -105,19 +106,32 @@ namespace SchoolProject
             #endregion
             MongoCRUD.Instance.InsertRecord("Mutes", muteModel);
 
+            var muteRole = Context.Guild.Roles.FirstOrDefault(r => r.Name == "Muted");
+
+            await targetFake.AddRoleAsync(muteRole);
+
             await ReplyAsync("User has been muted.");
         }
         [Command("test")]
         public async Task testasync()
         {
             DateTime todayDateTime = System.DateTime.Now;
+
             var recs = MongoCRUD.Instance.LoadRecords<MuteModel>("Mutes");
 
             foreach (var rec in recs)
             {
                 if (todayDateTime >= rec.muteFinished)
                 {
-                    await ReplyAsync("User needs to be unmuted");
+                    var client = DiscordBot.Instance._client;
+                    var guild = client.GetGuild(rec.guildId);
+                    SocketGuildUser user = (SocketGuildUser)client.GetUser(rec.target.id);
+                    var role = guild.Roles.FirstOrDefault(r => r.Name == "Muted");
+
+
+                    await user.RemoveRoleAsync(role);
+
+                    Console.WriteLine("Person has been unmuted");
                 }
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
 using MongoDB.Bson.Serialization.Attributes;
@@ -37,7 +38,15 @@ namespace SchoolProject
             {
                 if (todayDateTime >= rec.muteFinished)
                 {
-                    Console.WriteLine("User needs to be unmuted");
+                    var client = DiscordBot.Instance._client;
+                    var guild = client.GetGuild(rec.guildId);
+                    SocketGuildUser user = (SocketGuildUser)client.GetUser(rec.target.id);
+                    var role = guild.Roles.FirstOrDefault(r => r.Name == "Muted");
+
+
+                    await user.RemoveRoleAsync(role);
+
+                    Console.WriteLine("Person has been unmuted");
                 }
             }
             Task.Run(CheckMutesAsync);
@@ -49,6 +58,7 @@ namespace SchoolProject
         [BsonId]
         public DateTime muteFinished { get; set; }
         public DateTime timeMuted { get; set; }
+        public ulong guildId { get; set; }
         public bool isMuted { get; set; }
         public string duration { get; set; }
         public Target target { get; set; }
