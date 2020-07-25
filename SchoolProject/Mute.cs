@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Discord.WebSocket;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace SchoolProject
 {
@@ -21,13 +22,16 @@ namespace SchoolProject
                 return instance;
             }
         }
+        public Mute()
+        {
 
+        }
         public async Task CheckMutesAsync()
         {
             DateTime todayDateTime = System.DateTime.Now;
-            await Task.Delay(10000);
+            await Task.Delay(5000);
 
-            var recs = MongoCRUD.Instance.LoadRecords<MuteModel>();
+            var recs = MongoCRUD.Instance.LoadRecords<MuteModel>("Mutes");
 
             foreach (var rec in recs)
             {
@@ -39,12 +43,28 @@ namespace SchoolProject
             Task.Run(CheckMutesAsync);
         }
     }
+    //change socket user to its own objects or it dies
     public class MuteModel
     {
-        public DateTime timeMuted { get; set; }
-        public string duration { get; set; }
+        [BsonId]
         public DateTime muteFinished { get; set; }
-        public SocketUser target { get; set; }
-        public SocketUser moderator { get; set; }
+        public DateTime timeMuted { get; set; }
+        public bool isMuted { get; set; }
+        public string duration { get; set; }
+        public Target target { get; set; }
+        public Moderator moderator { get; set; }
+    }
+    public class Target
+    {
+        public ulong id { get; set; }
+        public string Username { get; set; }
+        public int Discriminator { get; set; }
+    }
+    public class Moderator
+    {
+        public ulong id { get; set; }
+        public string Username { get; set; }
+        public int Discriminator { get; set; }
     }
 }
+

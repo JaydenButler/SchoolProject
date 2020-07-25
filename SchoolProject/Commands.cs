@@ -52,14 +52,14 @@ namespace SchoolProject
         [Command("get")]
         public async Task ReadOrgAsync(string org)
         {
-            var rec = MongoCRUD.Instance.LoadRecordById<OrgModel>(org);
+            var rec = MongoCRUD.Instance.LoadRecordById<OrgModel>(org, "OrgDatabase", "OrgName");
             await ReplyAsync($"__**{rec.OrgName}**__\nTwitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
                 $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link {rec.LogoLink}");
         }
         [Command("orgs")]
         public async Task OrgsAsync()
         {
-            var recs = MongoCRUD.Instance.LoadRecords<OrgModel>();
+            var recs = MongoCRUD.Instance.LoadRecords<OrgModel>("OrgDatabase");
             StringBuilder sb = new StringBuilder();
             foreach (var rec in recs)
             {
@@ -71,8 +71,9 @@ namespace SchoolProject
         [Command("mute")]
         public async Task MuteAsync(SocketGuildUser targetFake, string time)
         {
-            SocketUser target = targetFake;
-            MuteModel muteModel = new MuteModel { timeMuted = System.DateTime.Now, moderator = Context.User, target = target };
+            Moderator moderator = new Moderator { Username = Context.User.Username, Discriminator = Context.User.DiscriminatorValue, id = Context.User.Id};
+            Target target = new Target { Username = targetFake.Username, Discriminator = targetFake.DiscriminatorValue, id = targetFake.Id };
+            MuteModel muteModel = new MuteModel { timeMuted = System.DateTime.Now, isMuted = true ,moderator = moderator, target = target };
             #region Adding time shit
             if (time.Contains("d"))
             {
@@ -105,6 +106,20 @@ namespace SchoolProject
             MongoCRUD.Instance.InsertRecord("Mutes", muteModel);
 
             await ReplyAsync("User has been muted.");
+        }
+        [Command("test")]
+        public async Task testasync()
+        {
+            DateTime todayDateTime = System.DateTime.Now;
+            var recs = MongoCRUD.Instance.LoadRecords<MuteModel>("Mutes");
+
+            foreach (var rec in recs)
+            {
+                if (todayDateTime >= rec.muteFinished)
+                {
+                    await ReplyAsync("User needs to be unmuted");
+                }
+            }
         }
     }
 

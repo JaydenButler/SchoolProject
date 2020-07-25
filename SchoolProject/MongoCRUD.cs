@@ -40,16 +40,16 @@ namespace SchoolProject
             collection.InsertOne(record);
         }
             
-        public T LoadRecordById<T>(string org)
+        public T LoadRecordById<T>(string org, string table, string filterThing)
         {
-            var collection = db.GetCollection<T>("OrgDatabase");
-            var filter = Builders<T>.Filter.Eq("OrgName", org);
+            var collection = db.GetCollection<T>(table);
+            var filter = Builders<T>.Filter.Eq(filterThing, org);
 
             return collection.Find(filter).First();
         }
-        public List<T> LoadRecords<T>()
+        public List<T> LoadRecords<T>(string table)
         {
-            var collection = db.GetCollection<T>("OrgDatabase");
+            var collection = db.GetCollection<T>(table);
 
             return collection.Find(new BsonDocument()).ToList();
         }
