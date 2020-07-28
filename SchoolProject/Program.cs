@@ -17,6 +17,8 @@ namespace SchoolProject
         public DiscordSocketClient _client;
         public CommandService _commands;
         public IServiceProvider _services;
+
+        public SocketGuild currentServer;
         
         static void Main(string[] args) => new DiscordBot().RunBotAsync().GetAwaiter().GetResult();
 
@@ -58,9 +60,7 @@ namespace SchoolProject
             await _client.LoginAsync(Discord.TokenType.Bot, botToken);
             await _client.StartAsync();
 
-            Mute.Instance.CheckMutesAsync();
-
-            Console.WriteLine("Bot online and running!");
+            Console.WriteLine("Bot is online and running!\nPlease remember to use the setup command.");
 
             // This is so the bot never closes unless there is a bug or error.
             await Task.Delay(-1);
@@ -91,6 +91,7 @@ namespace SchoolProject
             // The ! can be anything you want, but this goes before the command. ie - !ping, !help, !trade.
             if (msg.HasStringPrefix("!", ref argumentPosition))
             {
+                
                 // Injects the Context variable for the message.
                 var context = new SocketCommandContext(_client, msg);
 

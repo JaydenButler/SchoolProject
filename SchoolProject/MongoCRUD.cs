@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,6 +53,23 @@ namespace SchoolProject
             var collection = db.GetCollection<T>(table);
 
             return collection.Find(new BsonDocument()).ToList();
+        }
+               
+        public void UpsertRecord<T>(string table, DateTime timeDate, T record)
+        {
+            var collection = db.GetCollection<T>(table);
+
+            var result = collection.ReplaceOne(
+                new BsonDocument("_id", timeDate),
+                record,
+                new ReplaceOptions { IsUpsert = true });
+        }
+
+        public void DeleteMute<T>(DateTime dateTime)
+        {
+            var collection = db.GetCollection<T>("Mutes");
+            var filter = Builders<T>.Filter.Eq("_id", dateTime);
+            collection.DeleteOne(filter);
         }
     }
 

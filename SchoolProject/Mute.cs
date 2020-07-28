@@ -10,6 +10,7 @@ namespace SchoolProject
     {
 
         private static Mute instance;
+        private Mute() { }
 
         public static Mute Instance
         {
@@ -23,33 +24,33 @@ namespace SchoolProject
                 return instance;
             }
         }
-        public Mute()
-        {
-
-        }
         public async Task CheckMutesAsync()
         {
-            DateTime todayDateTime = System.DateTime.Now;
+            DateTime todayDateTime = DateTime.UtcNow;
             await Task.Delay(5000);
 
             var recs = MongoCRUD.Instance.LoadRecords<MuteModel>("Mutes");
 
             foreach (var rec in recs)
             {
-                if (todayDateTime >= rec.muteFinished)
+                if (todayDateTime >= rec.muteFinished && rec.isMuted == true)
                 {
-                    var client = DiscordBot.Instance._client;
-                    var guild = client.GetGuild(rec.guildId);
-                    SocketGuildUser user = (SocketGuildUser)client.GetUser(rec.target.id);
-                    var role = guild.Roles.FirstOrDefault(r => r.Name == "Muted");
+                    SocketGuildUser user = DiscordBot.Instance.currentServer.GetUser(rec.target.id);
+                    var role = DiscordBot.Instance.currentServer.Roles.FirstOrDefault(r => r.Name == "Muted");
 
 
                     await user.RemoveRoleAsync(role);
 
+                    rec.isMuted = false;
+
+                    MongoCRUD.Instance.InsertRecord("OldMutes", rec);
+
+                    MongoCRUD.Instance.DeleteMute<MuteModel>(rec.muteFinished);
+
                     Console.WriteLine("Person has been unmuted");
                 }
             }
-            Task.Run(CheckMutesAsync);
+            _ = Task.Run(CheckMutesAsync);
         }
     }
     //change socket user to its own objects or it dies
@@ -58,9 +59,9 @@ namespace SchoolProject
         [BsonId]
         public DateTime muteFinished { get; set; }
         public DateTime timeMuted { get; set; }
-        public ulong guildId { get; set; }
         public bool isMuted { get; set; }
         public string duration { get; set; }
+        public string reason { get; set; }
         public Target target { get; set; }
         public Moderator moderator { get; set; }
     }

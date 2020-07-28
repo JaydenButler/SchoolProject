@@ -69,12 +69,13 @@ namespace SchoolProject
             await ReplyAsync($"The following is the list of orgs we cater for:\n{sb.ToString()}\n*Please remember while using commands that names are case-sensitive. " +
                 $"Please use the exact name seen above.*");
         }
+        #region Mute related
         [Command("mute")]
-        public async Task MuteAsync(SocketGuildUser targetFake, string time)
+        public async Task MuteAsync(SocketGuildUser targetFake, string time, [Remainder] string reason)
         {
             Moderator moderator = new Moderator { Username = Context.User.Username, Discriminator = Context.User.DiscriminatorValue, id = Context.User.Id};
             Target target = new Target { Username = targetFake.Username, Discriminator = targetFake.DiscriminatorValue, id = targetFake.Id };
-            MuteModel muteModel = new MuteModel { timeMuted = System.DateTime.Now, isMuted = true ,moderator = moderator, target = target, guildId = Context.Guild.Id};
+            MuteModel muteModel = new MuteModel { timeMuted = System.DateTime.Now, isMuted = true , reason = reason, moderator = moderator, target = target};
             #region Adding time shit
             if (time.Contains("d"))
             {
@@ -110,30 +111,54 @@ namespace SchoolProject
 
             await targetFake.AddRoleAsync(muteRole);
 
-            await ReplyAsync("User has been muted.");
+            await targetFake.SendMessageAsync($"You have been muted by a moderator.\nDuration: {time}\nReason: {reason}");
+
+            await ReplyAsync($"<@{targetFake.Id}> was muted by <@{Context.User.Id}>.\n" +
+                $"Duration: {time}\n" +
+                $"Reason: {reason}");
         }
-        [Command("test")]
-        public async Task testasync()
+        [Command("unmute")]
+        public async Task UnmuteAsync(SocketGuildUser target)
         {
-            DateTime todayDateTime = System.DateTime.Now;
+            var rec = MongoCRUD.Instance.LoadRecordById<MuteModel>(target.Id.ToString(), "Mutes", "target.id");
+            rec.isMuted = false;
+            MongoCRUD.Instance.InsertRecord("OldMutes", rec);
 
+            MongoCRUD.Instance.DeleteMute<MuteModel>(rec.muteFinished);
+
+            var muteRole = Context.Guild.Roles.FirstOrDefault(r => r.Name == "Muted");
+
+            await target.RemoveRoleAsync(muteRole);
+
+            await ReplyAsync($"<@{target.Id}> has been unmuted.");
+        }
+        [Command("mutes")]
+        public async Task MutesAsync()
+        {
             var recs = MongoCRUD.Instance.LoadRecords<MuteModel>("Mutes");
-
+            StringBuilder sb = new StringBuilder();
             foreach (var rec in recs)
             {
-                if (todayDateTime >= rec.muteFinished)
-                {
-                    var client = DiscordBot.Instance._client;
-                    var guild = client.GetGuild(rec.guildId);
-                    SocketGuildUser user = (SocketGuildUser)client.GetUser(rec.target.id);
-                    var role = guild.Roles.FirstOrDefault(r => r.Name == "Muted");
-
-
-                    await user.RemoveRoleAsync(role);
-
-                    Console.WriteLine("Person has been unmuted");
-                }
+                TimeSpan timeLeft = rec.muteFinished.Subtract(DateTime.UtcNow);
+                string timeLeftTrimmed = string.Format($"{timeLeft.Days}:{timeLeft.Hours}:{timeLeft.Minutes}:{timeLeft.Seconds}");
+                sb.Append($"<@{rec.target.id}> - {rec.reason} - {timeLeftTrimmed}\n");
             }
+
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.WithTitle("Active Mutes:").WithDescription(sb.ToString()).WithColor(Discord.Color.DarkerGrey);
+
+            await ReplyAsync("", false, builder.Build());
+        }
+        #endregion
+
+        [Command("setup")]
+        public async Task SetupAsync()
+        { 
+            DiscordBot.Instance.currentServer = Context.Guild;
+
+            _ = Mute.Instance.CheckMutesAsync();
+
+            await ReplyAsync("Setup complete.");
         }
     }
 
