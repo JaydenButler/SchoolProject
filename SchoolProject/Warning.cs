@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord.WebSocket;
@@ -6,19 +6,19 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace SchoolProject
 {
-    public class Mute
+    public class Warning
     {
 
-        private static Mute instance;
-        private Mute() { }
+        private static Warning instance;
+        private Warning() { }
 
-        public static Mute Instance
+        public static Warning Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = new Mute();
+                    instance = new Warning();
                 }
 
                 return instance;
@@ -53,7 +53,5 @@ namespace SchoolProject
             _ = Task.Run(CheckMutesAsync);
         }
     }
-    
-    
 }
 

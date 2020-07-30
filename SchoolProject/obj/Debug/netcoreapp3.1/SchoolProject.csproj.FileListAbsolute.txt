@@ -27,3 +27,33 @@
 /Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.dll
 /Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.pdb
 /Users/jayden/Desktop/SchoolProject/SchoolProject/obj/Debug/netcoreapp3.1/SchoolProject.genruntimeconfig.cache
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SchoolProject.exe
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SchoolProject.deps.json
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SchoolProject.runtimeconfig.json
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SchoolProject.runtimeconfig.dev.json
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SchoolProject.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SchoolProject.pdb
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Discord.Net.Commands.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Discord.Net.Core.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Discord.Net.Rest.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Discord.Net.Webhook.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Discord.Net.WebSocket.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\DnsClient.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\MongoDB.Bson.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\MongoDB.Driver.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\MongoDB.Driver.Core.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\MongoDB.Libmongocrypt.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\Newtonsoft.Json.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\SharpCompress.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\System.Interactive.Async.dll
+G:\Discord Bots\SchoolProject\SchoolProject\bin\Debug\netcoreapp3.1\System.Linq.Async.dll
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.csprojAssemblyReference.cache
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.AssemblyInfoInputs.cache
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.AssemblyInfo.cs
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.csproj.CoreCompileInputs.cache
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.csproj.CopyComplete
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.dll
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.pdb
+G:\Discord Bots\SchoolProject\SchoolProject\obj\Debug\netcoreapp3.1\SchoolProject.genruntimeconfig.cache
