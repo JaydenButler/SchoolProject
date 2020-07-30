@@ -63,7 +63,7 @@ namespace SchoolProject
                 $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link {rec.LogoLink}");
         }
 
-        [Command ("remove")]
+        [Command ("rm")]
         public async Task UnmuteAsync (string orgName)
         {
             try
@@ -263,7 +263,7 @@ namespace SchoolProject
         }
         #endregion
         [Command ("warnings")]
-        public async Task WarningAsync (SocketGuildUser target)
+        public async Task WarningsAsync (SocketGuildUser target)
         {
             int amount = 0;
             var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
@@ -284,6 +284,65 @@ namespace SchoolProject
                     .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
 
                 await ReplyAsync ("", false, builder.Build ());
+            }
+            else
+            {
+                await ReplyAsync ("This user has no warnings.");
+            }
+        }
+
+        [Command ("warning")]
+        public async Task WarningAsync (SocketGuildUser target, int warning)
+        {
+            warning -= 1;
+            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
+
+            if (recs.Count != 0)
+            {
+                foreach (var rec in recs)
+                {
+                    if (rec.warnings[warning] != null)
+                    {
+                        EmbedBuilder builder = new EmbedBuilder ();
+                        builder.WithTitle ($"**Warning #{warning + 1} for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
+                            .WithDescription ($"Reason: {rec.warnings[warning].warnReason}\n\nTime given: {rec.warnings[warning].dateTime}\n\n" +
+                                $"Moderator: {rec.warnings[warning].moderator.Username}#{rec.warnings[warning].moderator.Discriminator}").WithThumbnailUrl (target.GetAvatarUrl ());
+
+                        await ReplyAsync ("", false, builder.Build ());
+                    }
+                    else
+                    {
+                        await ReplyAsync ("User's warning doesn't exist.");
+                    }
+
+                }
+            }
+            else
+            {
+                await ReplyAsync ("This user has no warnings.");
+            }
+        }
+        [Command ("rm warning")]
+        public async Task RmWarningAsync (SocketGuildUser target, int warning)
+        {
+            warning -= 1;
+            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
+
+            if (recs.Count != 0)
+            {
+                foreach (var rec in recs)
+                {
+                    if (rec.warnings[warning] != null)
+                    {
+                        MongoCRUD.Instance.DeleteWarning<UserWarnModel>(rec.userId, rec.warnings[warning].dateTime);
+                        await ReplyAsync ("User's warning removed.");
+                    }
+                    else
+                    {
+                        await ReplyAsync ("User's warning doesn't exist.");
+                    }
+
+                }
             }
             else
             {

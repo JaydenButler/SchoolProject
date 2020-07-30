@@ -88,6 +88,12 @@ namespace SchoolProject
             var filter = Builders<T>.Filter.Eq ("_id", id);
             collection.DeleteOne (filter);
         }
+        public void DeleteWarning<T> (string table, string id)
+        {
+            var collection = db.GetCollection<T> (table);
+            var filter = Builders<T>.Filter.Eq ("warnings[0].dateTime", id);
+            collection.DeleteOne (filter);
+        }
         public void UpdateWarning<UserWarnModel> (string table, string id, UserWarnModel record)
         {
             var collection = db.GetCollection<UserWarnModel> (table);
