@@ -53,7 +53,7 @@ namespace SchoolProject
             var collection = db.GetCollection<T> (table);
             var filter = Builders<T>.Filter.Eq (filterThing, sorter);
 
-            return collection.Find(filter).ToList();
+            return collection.Find (filter).ToList ();
         }
         public List<T> LoadRecords<T> (string table)
         {
@@ -74,7 +74,6 @@ namespace SchoolProject
                     IsUpsert = true
                 });
         }
-        
 
         public void DeleteMute<T> (DateTime dateTime)
         {
@@ -88,6 +87,18 @@ namespace SchoolProject
             var collection = db.GetCollection<T> (table);
             var filter = Builders<T>.Filter.Eq ("_id", id);
             collection.DeleteOne (filter);
+        }
+        public void UpdateWarning<UserWarnModel> (string table, string id, UserWarnModel record)
+        {
+            var collection = db.GetCollection<UserWarnModel> (table);
+
+            var result = collection.ReplaceOne (
+                new BsonDocument ("_id", id),
+                record,
+                new ReplaceOptions
+                {
+                    IsUpsert = true
+                });
         }
     }
 

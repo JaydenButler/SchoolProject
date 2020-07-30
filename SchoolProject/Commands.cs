@@ -205,13 +205,13 @@ namespace SchoolProject
         {
             var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-            if (recs != null)
+            if (recs.Count != 0)
             {
                 ModeratorModel moderator = new ModeratorModel
                 {
-                    Username = Context.User.Username,
-                    Discriminator = Context.User.DiscriminatorValue,
-                    id = Context.User.Id
+                Username = Context.User.Username,
+                Discriminator = Context.User.DiscriminatorValue,
+                id = Context.User.Id
                 };
                 foreach (var rec in recs)
                 {
@@ -220,10 +220,10 @@ namespace SchoolProject
                         new WarningModel
                         {
                             warnReason = reason,
-                            dateTime = DateTime.Now.ToString ("F"),
-                            moderator = moderator
+                                dateTime = DateTime.Now.ToString ("F"),
+                                moderator = moderator
                         });
-                    MongoCRUD.Instance.UpsertRecord ("Warnings", target.Id.ToString (), rec.warnings);
+                    MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
                 }
             }
             else
@@ -250,12 +250,46 @@ namespace SchoolProject
                 };
                 MongoCRUD.Instance.InsertRecord ("Warnings", userWarnModel);
             }
+            EmbedBuilder builder1 = new EmbedBuilder ();
+            builder1.WithTitle ($"**You have been warned in the OEA**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red)
+                .WithFooter ("If you think this was an error, please contact a moderator.");
+
+            await target.SendMessageAsync ("", false, builder1.Build ());
 
             EmbedBuilder builder = new EmbedBuilder ();
             builder.WithTitle ($"**{target.Username}#{target.Discriminator} has been warned.**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red);
             await ReplyAsync ("", false, builder.Build ());
+
         }
         #endregion
+        [Command ("warnings")]
+        public async Task WarningAsync (SocketGuildUser target)
+        {
+            int amount = 0;
+            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
+
+            StringBuilder sb = new StringBuilder ();
+            if (recs.Count != 0)
+            {
+                foreach (var rec in recs)
+                {
+                    for (int i = 0; i < rec.warnings.Count (); i++)
+                    {
+                        sb.Append ($"**Warning #{i + 1}**: {rec.warnings[i].warnReason} - {rec.warnings[i].dateTime}\n\n");
+                    }
+                    amount = rec.warnings.Count ();
+                }
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**Warnings for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
+                    .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
+
+                await ReplyAsync ("", false, builder.Build ());
+            }
+            else
+            {
+                await ReplyAsync ("This user has no warnings.");
+            }
+        }
 
         [Command ("clear")]
         public async Task ClearAsync (int amount)
