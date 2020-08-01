@@ -479,9 +479,6 @@ namespace SchoolProject
             {
                 if (DiscordBot.Instance.currentServer != null)
                 {
-                    await user.BanAsync ();
-
-                    await DiscordBot.Instance.currentServer.RemoveBanAsync (user);
 
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**{user.Username}#{user.Discriminator} has been soft banned.**").WithColor (Discord.Color.Red);
@@ -491,7 +488,8 @@ namespace SchoolProject
                         .WithFooter ("If you think this was an error, please contact a moderator.");
 
                     await user.SendMessageAsync ("", false, builder1.Build ());
-
+                    await user.BanAsync ();
+                    await DiscordBot.Instance.currentServer.RemoveBanAsync (user);
                     await ReplyAsync ("", false, builder.Build ());
 
                 }
