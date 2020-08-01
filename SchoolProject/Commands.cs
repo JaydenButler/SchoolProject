@@ -30,7 +30,7 @@ namespace SchoolProject
 
         [Command ("set")]
         public async Task AddOrgAsync (string orgName, string twitterLink, string facebookLink,
-            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, [Remainder] string logoLink)
+            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, string logoLink)
         {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
