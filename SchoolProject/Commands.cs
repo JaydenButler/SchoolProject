@@ -32,26 +32,35 @@ namespace SchoolProject
         public async Task AddOrgAsync (string orgName, string twitterLink, string facebookLink,
             string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, [Remainder] string logoLink)
         {
-            try
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
+                try
+                {
                 SocialModel socialModel = new SocialModel
                 {
-                    TwitterLink = twitterLink,
-                    FacebookLink = facebookLink,
-                    InstagramLink = instagramLink,
-                    YoutubeLinks = youtubeLink,
-                    TwitchTeam = twitchTeam
-                };
-                OrgModel orgModel = new OrgModel
+                TwitterLink = twitterLink,
+                FacebookLink = facebookLink,
+                InstagramLink = instagramLink,
+                YoutubeLinks = youtubeLink,
+                TwitchTeam = twitchTeam
+                    };
+                    OrgModel orgModel = new OrgModel
+                    {
+                        OrgName = orgName, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink
+                    };
+                    MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
+                    await ReplyAsync ("I worked");
+                }
+                catch
                 {
-                    OrgName = orgName, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink
-                };
-                MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
-                await ReplyAsync ("I worked");
+                    await ReplyAsync ("An errror as occured. Please make sure that you have not entered an Organisation already in the Database.");
+                }
             }
-            catch
+            else
             {
-                await ReplyAsync ("An errror as occured. Please make sure that you have not entered an Organisation already in the Databse.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
@@ -66,17 +75,27 @@ namespace SchoolProject
         [Command ("rm")]
         public async Task UnmuteAsync (string orgName)
         {
-            try
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
-                MongoCRUD.Instance.Delete<OrgModel> ("OrgDatabase", orgName);
+                try
+                {
+                    MongoCRUD.Instance.Delete<OrgModel> ("OrgDatabase", orgName);
 
-                await ReplyAsync ($"{orgName} has been removed from the Orgs Database.");
+                    await ReplyAsync ($"{orgName} has been removed from the Orgs Database.");
+                }
+                catch
+                {
+                    await ReplyAsync ("An error as occured. Please ensure you have entered the correct information and you aren't trying to remove something " +
+                        "that doesn't exist.");
+                }
             }
-            catch
+            else
             {
-                await ReplyAsync ("An error as occured. Please ensure you have entered the correct information and you aren't trying to remove something " +
-                    "that doesn't exist.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
+
         }
 
         [Command ("orgs")]
@@ -95,107 +114,136 @@ namespace SchoolProject
         [Command ("mute")]
         public async Task MuteAsync (SocketGuildUser targetFake, string time, [Remainder] string reason)
         {
-            if (DiscordBot.Instance.currentServer != null)
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
+
+                if (DiscordBot.Instance.currentServer != null)
+                {
                 ModeratorModel moderator = new ModeratorModel
                 {
                 Username = Context.User.Username,
                 Discriminator = Context.User.DiscriminatorValue,
                 id = Context.User.Id
-                };
-                TargetModel target = new TargetModel
-                {
-                    Username = targetFake.Username,
-                    Discriminator = targetFake.DiscriminatorValue,
-                    id = targetFake.Id
-                };
-                MuteModel muteModel = new MuteModel
-                {
-                    timeMuted = System.DateTime.Now,
-                    isMuted = true,
-                    reason = reason,
-                    moderator = moderator,
-                    target = target
-                };
-                #region Adding time shit
-                if (time.Contains ("d"))
-                {
-                    var realTime = time.Substring (0, time.Length - 1);
-                    muteModel.duration = time;
+                    };
+                    TargetModel target = new TargetModel
+                    {
+                        Username = targetFake.Username,
+                        Discriminator = targetFake.DiscriminatorValue,
+                        id = targetFake.Id
+                    };
+                    MuteModel muteModel = new MuteModel
+                    {
+                        timeMuted = System.DateTime.Now,
+                        isMuted = true,
+                        reason = reason,
+                        moderator = moderator,
+                        target = target
+                    };
+                    #region Adding time shit
+                    if (time.Contains ("d"))
+                    {
+                        var realTime = time.Substring (0, time.Length - 1);
+                        muteModel.duration = time;
 
-                    System.TimeSpan duration = new System.TimeSpan (int.Parse (realTime), 0, 0, 0);
-                    DateTime endMute = System.DateTime.Now.Add (duration);
-                    muteModel.muteFinished = endMute;
+                        System.TimeSpan duration = new System.TimeSpan (int.Parse (realTime), 0, 0, 0);
+                        DateTime endMute = System.DateTime.Now.Add (duration);
+                        muteModel.muteFinished = endMute;
+                    }
+                    else if (time.Contains ("h"))
+                    {
+                        var realTime = time.Substring (0, time.Length - 1);
+                        muteModel.duration = time;
+
+                        System.TimeSpan duration = new System.TimeSpan (0, int.Parse (realTime), 0, 0);
+                        DateTime endMute = System.DateTime.Now.Add (duration);
+                        muteModel.muteFinished = endMute;
+                    }
+                    else if (time.Contains ("m"))
+                    {
+                        var realTime = time.Substring (0, time.Length - 1);
+                        muteModel.duration = time;
+
+                        System.TimeSpan duration = new System.TimeSpan (0, 0, int.Parse (realTime), 0);
+                        DateTime endMute = System.DateTime.Now.Add (duration);
+                        muteModel.muteFinished = endMute;
+                    }
+                    #endregion
+                    MongoCRUD.Instance.InsertRecord ("Mutes", muteModel);
+
+                    var muteRole = Context.Guild.Roles.FirstOrDefault (r => r.Name == "Muted");
+
+                    await targetFake.AddRoleAsync (muteRole);
+
+                    await targetFake.SendMessageAsync ($"You have been muted by a moderator.\nDuration: {time}\nReason: {reason}");
+
+                    await ReplyAsync ($"<@{targetFake.Id}> was muted by <@{Context.User.Id}>.\n" +
+                        $"Duration: {time}\n" +
+                        $"Reason: {reason}");
                 }
-                else if (time.Contains ("h"))
+                else
                 {
-                    var realTime = time.Substring (0, time.Length - 1);
-                    muteModel.duration = time;
-
-                    System.TimeSpan duration = new System.TimeSpan (0, int.Parse (realTime), 0, 0);
-                    DateTime endMute = System.DateTime.Now.Add (duration);
-                    muteModel.muteFinished = endMute;
+                    await ReplyAsync ("Please run the setup command before using this command.");
                 }
-                else if (time.Contains ("m"))
-                {
-                    var realTime = time.Substring (0, time.Length - 1);
-                    muteModel.duration = time;
-
-                    System.TimeSpan duration = new System.TimeSpan (0, 0, int.Parse (realTime), 0);
-                    DateTime endMute = System.DateTime.Now.Add (duration);
-                    muteModel.muteFinished = endMute;
-                }
-                #endregion
-                MongoCRUD.Instance.InsertRecord ("Mutes", muteModel);
-
-                var muteRole = Context.Guild.Roles.FirstOrDefault (r => r.Name == "Muted");
-
-                await targetFake.AddRoleAsync (muteRole);
-
-                await targetFake.SendMessageAsync ($"You have been muted by a moderator.\nDuration: {time}\nReason: {reason}");
-
-                await ReplyAsync ($"<@{targetFake.Id}> was muted by <@{Context.User.Id}>.\n" +
-                    $"Duration: {time}\n" +
-                    $"Reason: {reason}");
             }
             else
             {
-                await ReplyAsync ("Please run the setup command before using this command.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("unmute")]
         public async Task UnmuteAsync (SocketGuildUser target)
         {
-            var rec = MongoCRUD.Instance.LoadRecordById<MuteModel> (target.Id.ToString (), "Mutes", "target.id");
-            rec.isMuted = false;
-            MongoCRUD.Instance.InsertRecord ("OldMutes", rec);
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
+            {
+                var rec = MongoCRUD.Instance.LoadRecordById<MuteModel> (target.Id.ToString (), "Mutes", "target.id");
+                rec.isMuted = false;
+                MongoCRUD.Instance.InsertRecord ("OldMutes", rec);
 
-            MongoCRUD.Instance.DeleteMute<MuteModel> (rec.muteFinished);
+                MongoCRUD.Instance.DeleteMute<MuteModel> (rec.muteFinished);
 
-            var muteRole = Context.Guild.Roles.FirstOrDefault (r => r.Name == "Muted");
+                var muteRole = Context.Guild.Roles.FirstOrDefault (r => r.Name == "Muted");
 
-            await target.RemoveRoleAsync (muteRole);
+                await target.RemoveRoleAsync (muteRole);
 
-            await ReplyAsync ($"<@{target.Id}> has been unmuted.");
+                await ReplyAsync ($"<@{target.Id}> has been unmuted.");
+
+            }
+            else
+            {
+                await ReplyAsync ("You do not have permission to use this command.");
+            }
         }
 
         [Command ("mutes")]
         public async Task MutesAsync ()
         {
-            var recs = MongoCRUD.Instance.LoadRecords<MuteModel> ("Mutes");
-            StringBuilder sb = new StringBuilder ();
-            foreach (var rec in recs)
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
-                TimeSpan timeLeft = rec.muteFinished.Subtract (DateTime.UtcNow);
-                string timeLeftTrimmed = string.Format ($"{timeLeft.Days}:{timeLeft.Hours}:{timeLeft.Minutes}:{timeLeft.Seconds}");
-                sb.Append ($"<@{rec.target.id}> - {rec.reason} - {timeLeftTrimmed}\n");
+                var recs = MongoCRUD.Instance.LoadRecords<MuteModel> ("Mutes");
+                StringBuilder sb = new StringBuilder ();
+                foreach (var rec in recs)
+                {
+                    TimeSpan timeLeft = rec.muteFinished.Subtract (DateTime.UtcNow);
+                    string timeLeftTrimmed = string.Format ($"{timeLeft.Days}:{timeLeft.Hours}:{timeLeft.Minutes}:{timeLeft.Seconds}");
+                    sb.Append ($"<@{rec.target.id}> - {rec.reason} - {timeLeftTrimmed}\n");
+                }
+
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ("Active Mutes:").WithDescription (sb.ToString ()).WithColor (Discord.Color.DarkerGrey);
+
+                await ReplyAsync ("", false, builder.Build ());
             }
-
-            EmbedBuilder builder = new EmbedBuilder ();
-            builder.WithTitle ("Active Mutes:").WithDescription (sb.ToString ()).WithColor (Discord.Color.DarkerGrey);
-
-            await ReplyAsync ("", false, builder.Build ());
+            else
+            {
+                await ReplyAsync ("You do not have permission to use this command.");
+            }
         }
         #endregion
 
@@ -203,204 +251,264 @@ namespace SchoolProject
         [Command ("warn")]
         public async Task WarnAsync (SocketGuildUser target, [Remainder] string reason)
         {
-            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
+            {
+                var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-            if (recs.Count != 0)
-            {
-                ModeratorModel moderator = new ModeratorModel
+                if (recs.Count != 0)
                 {
-                Username = Context.User.Username,
-                Discriminator = Context.User.DiscriminatorValue,
-                id = Context.User.Id
-                };
-                foreach (var rec in recs)
-                {
-                    rec.warnings.Add (
-                        new WarningModel
-                        {
-                            warnReason = reason,
-                                dateTime = DateTime.Now.ToString ("F"),
-                                moderator = moderator
-                        });
-                    MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
-                }
-            }
-            else
-            {
-                ModeratorModel moderator = new ModeratorModel
-                {
+                    ModeratorModel moderator = new ModeratorModel
+                    {
                     Username = Context.User.Username,
                     Discriminator = Context.User.DiscriminatorValue,
                     id = Context.User.Id
-                };
-                List<WarningModel> warningModel = new List<WarningModel>
-                {
-                    new WarningModel
+                    };
+                    foreach (var rec in recs)
                     {
-                    warnReason = reason,
-                    dateTime = DateTime.Now.ToString ("F"),
-                    moderator = moderator
+                        rec.warnings.Add (
+                            new WarningModel
+                            {
+                                warnReason = reason,
+                                    dateTime = DateTime.Now.ToString ("F"),
+                                    moderator = moderator
+                            });
+                        MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
                     }
-                };
-                UserWarnModel userWarnModel = new UserWarnModel
+                }
+                else
                 {
-                    userId = target.Id.ToString (),
-                    warnings = warningModel
-                };
-                MongoCRUD.Instance.InsertRecord ("Warnings", userWarnModel);
+                    ModeratorModel moderator = new ModeratorModel
+                    {
+                        Username = Context.User.Username,
+                        Discriminator = Context.User.DiscriminatorValue,
+                        id = Context.User.Id
+                    };
+                    List<WarningModel> warningModel = new List<WarningModel>
+                    {
+                        new WarningModel
+                        {
+                        warnReason = reason,
+                        dateTime = DateTime.Now.ToString ("F"),
+                        moderator = moderator
+                        }
+                    };
+                    UserWarnModel userWarnModel = new UserWarnModel
+                    {
+                        userId = target.Id.ToString (),
+                        warnings = warningModel
+                    };
+                    MongoCRUD.Instance.InsertRecord ("Warnings", userWarnModel);
+                }
+                EmbedBuilder builder1 = new EmbedBuilder ();
+                builder1.WithTitle ($"**You have been warned in the OEA**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red)
+                    .WithFooter ("If you think this was an error, please contact a moderator.");
+
+                await target.SendMessageAsync ("", false, builder1.Build ());
+
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**{target.Username}#{target.Discriminator} has been warned.**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red);
+                await ReplyAsync ("", false, builder.Build ());
             }
-            EmbedBuilder builder1 = new EmbedBuilder ();
-            builder1.WithTitle ($"**You have been warned in the OEA**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red)
-                .WithFooter ("If you think this was an error, please contact a moderator.");
-
-            await target.SendMessageAsync ("", false, builder1.Build ());
-
-            EmbedBuilder builder = new EmbedBuilder ();
-            builder.WithTitle ($"**{target.Username}#{target.Discriminator} has been warned.**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red);
-            await ReplyAsync ("", false, builder.Build ());
-
+            else
+            {
+                await ReplyAsync ("You do not have permission to use this command.");
+            }
         }
 
         [Command ("warnings")]
         public async Task WarningsAsync (SocketGuildUser target)
         {
-            int amount = 0;
-            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
-
-            StringBuilder sb = new StringBuilder ();
-            if (recs.Count != 0)
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
-                foreach (var rec in recs)
-                {
-                    if (rec.warnings.Count () != 0)
-                    {
-                        for (int i = 0; i < rec.warnings.Count (); i++)
-                        {
-                            sb.Append ($"**Warning #{i + 1}**: {rec.warnings[i].warnReason} - {rec.warnings[i].dateTime}\n\n");
-                        }
-                        amount = rec.warnings.Count ();
-                        EmbedBuilder builder = new EmbedBuilder ();
-                        builder.WithTitle ($"**Warnings for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
-                            .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
+                int amount = 0;
+                var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-                        await ReplyAsync ("", false, builder.Build ());
-                    }
-                    else
+                StringBuilder sb = new StringBuilder ();
+                if (recs.Count != 0)
+                {
+                    foreach (var rec in recs)
                     {
-                        await ReplyAsync ("This user has no warnings.");
+                        if (rec.warnings.Count () != 0)
+                        {
+                            for (int i = 0; i < rec.warnings.Count (); i++)
+                            {
+                                sb.Append ($"**Warning #{i + 1}**: {rec.warnings[i].warnReason} - {rec.warnings[i].dateTime}\n\n");
+                            }
+                            amount = rec.warnings.Count ();
+                            EmbedBuilder builder = new EmbedBuilder ();
+                            builder.WithTitle ($"**Warnings for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
+                                .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
+
+                            await ReplyAsync ("", false, builder.Build ());
+                        }
+                        else
+                        {
+                            await ReplyAsync ("This user has no warnings.");
+                        }
+
                     }
 
                 }
-
+                else
+                {
+                    await ReplyAsync ("This user has no warnings.");
+                }
             }
             else
             {
-                await ReplyAsync ("This user has no warnings.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("warning")]
         public async Task WarningAsync (SocketGuildUser target, int warning)
         {
-            warning -= 1;
-            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
-
-            if (recs.Count != 0)
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
-                foreach (var rec in recs)
-                {
-                    if (rec.warnings[warning] != null)
-                    {
-                        EmbedBuilder builder = new EmbedBuilder ();
-                        builder.WithTitle ($"**Warning #{warning + 1} for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
-                            .WithDescription ($"Reason: {rec.warnings[warning].warnReason}\n\nTime given: {rec.warnings[warning].dateTime}\n\n" +
-                                $"Moderator: {rec.warnings[warning].moderator.Username}#{rec.warnings[warning].moderator.Discriminator}").WithThumbnailUrl (target.GetAvatarUrl ());
+                warning -= 1;
+                var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-                        await ReplyAsync ("", false, builder.Build ());
-                    }
-                    else
+                if (recs.Count != 0)
+                {
+                    foreach (var rec in recs)
                     {
-                        await ReplyAsync ("User's warning doesn't exist.");
+                        if (rec.warnings[warning] != null)
+                        {
+                            EmbedBuilder builder = new EmbedBuilder ();
+                            builder.WithTitle ($"**Warning #{warning + 1} for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
+                                .WithDescription ($"Reason: {rec.warnings[warning].warnReason}\n\nTime given: {rec.warnings[warning].dateTime}\n\n" +
+                                    $"Moderator: {rec.warnings[warning].moderator.Username}#{rec.warnings[warning].moderator.Discriminator}").WithThumbnailUrl (target.GetAvatarUrl ());
+
+                            await ReplyAsync ("", false, builder.Build ());
+                        }
+                        else
+                        {
+                            await ReplyAsync ("User's warning doesn't exist.");
+                        }
                     }
+                }
+                else
+                {
+                    await ReplyAsync ("This user has no warnings.");
                 }
             }
             else
             {
-                await ReplyAsync ("This user has no warnings.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("rm warning")]
         public async Task RmWarningAsync (SocketGuildUser target, int warning)
         {
-
-            warning -= 1;
-            var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
-
-            if (recs.Count != 0)
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
-                foreach (var rec in recs)
+                warning -= 1;
+                var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
+
+                if (recs.Count != 0)
                 {
-                    rec.warnings.Remove (rec.warnings[warning]);
-                    MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
+                    foreach (var rec in recs)
+                    {
+                        rec.warnings.Remove (rec.warnings[warning]);
+                        MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
+                    }
+                    await ReplyAsync ("User's warning has been removed.");
                 }
-                await ReplyAsync ("User's warning has been removed.");
+                else
+                {
+                    await ReplyAsync ("This user has no warnings.");
+                }
             }
             else
             {
-                await ReplyAsync ("This user has no warnings.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
         }
         #endregion
-        
+
         [Command ("clear")]
         public async Task ClearAsync (int amount)
         {
-            var messages = await Context.Channel.GetMessagesAsync (amount + 1).FlattenAsync ();
-            await (Context.Channel as SocketTextChannel).DeleteMessagesAsync (messages);
-            var msg = await ReplyAsync ($"{amount} messages cleared.");
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
+            {
+                var messages = await Context.Channel.GetMessagesAsync (amount + 1).FlattenAsync ();
+                await (Context.Channel as SocketTextChannel).DeleteMessagesAsync (messages);
+                var msg = await ReplyAsync ($"{amount} messages cleared.");
 
-            await Task.Delay (2000);
+                await Task.Delay (2000);
 
-            await msg.DeleteAsync ();
+                await msg.DeleteAsync ();
+            }
+            else
+            {
+                await ReplyAsync ("You do not have permission to use this command.");
+            }
         }
 
         [Command ("softban")]
         public async Task SoftbanAsync (SocketGuildUser user, [Remainder] string reason)
         {
-            if (DiscordBot.Instance.currentServer != null)
+            var user1 = Context.User as SocketGuildUser;
+            var staffRole = user1.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
             {
-                await user.BanAsync ();
+                if (DiscordBot.Instance.currentServer != null)
+                {
+                    await user.BanAsync ();
 
-                await DiscordBot.Instance.currentServer.RemoveBanAsync (user);
+                    await DiscordBot.Instance.currentServer.RemoveBanAsync (user);
 
-                EmbedBuilder builder = new EmbedBuilder ();
-                builder.WithTitle ($"**{user.Username}#{user.Discriminator} has been soft banned.**").WithColor (Discord.Color.Red);
+                    EmbedBuilder builder = new EmbedBuilder ();
+                    builder.WithTitle ($"**{user.Username}#{user.Discriminator} has been soft banned.**").WithColor (Discord.Color.Red);
 
-                EmbedBuilder builder1 = new EmbedBuilder ();
-                builder1.WithTitle ($"**You have been kicked from the OEA**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red)
-                    .WithFooter ("If you think this was an error, please contact a moderator.");
+                    EmbedBuilder builder1 = new EmbedBuilder ();
+                    builder1.WithTitle ($"**You have been kicked from the OEA**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red)
+                        .WithFooter ("If you think this was an error, please contact a moderator.");
 
-                await user.SendMessageAsync ("", false, builder1.Build ());
+                    await user.SendMessageAsync ("", false, builder1.Build ());
 
-                await ReplyAsync ("", false, builder.Build ());
+                    await ReplyAsync ("", false, builder.Build ());
 
+                }
+                else
+                {
+                    await ReplyAsync ("Please run the setup command before using this command.");
+                }
             }
             else
             {
-                await ReplyAsync ("Please run the setup command before using this command.");
+                await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("setup")]
         public async Task SetupAsync ()
         {
-            DiscordBot.Instance.currentServer = Context.Guild;
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
+            {
+                DiscordBot.Instance.currentServer = Context.Guild;
 
-            _ = Mute.Instance.CheckMutesAsync ();
+                _ = Mute.Instance.CheckMutesAsync ();
 
-            await ReplyAsync ("Setup complete.");
+                await ReplyAsync ("Setup complete.");
+            }
+            else
+            {
+                await ReplyAsync ("You do not have permission to use this command.");
+            }
         }
     }
-
 }
