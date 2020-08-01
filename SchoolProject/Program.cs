@@ -52,6 +52,8 @@ namespace SchoolProject
 
             // This is your bot token. You get this from http://www.discordapp.com/developers/, if you need help, read the README in the repository.
             string botToken = "NjI3MDQzNzgwMTA0NjgzNTIx.XxgDwg.gmdSRg1jNgcnQQ5VIdPlaqlGQzg";
+            // OEA BOT NzM4OTk5MTUyMzAxODM0MzA0.XyUElw.5mQupHv6XfaBBH28KmFeqtUUEfQ
+            // TEST BOT NjI3MDQzNzgwMTA0NjgzNTIx.XxgDwg.gmdSRg1jNgcnQQ5VIdPlaqlGQzg
 
             // Injects the commands into the bot as something to monitor.
             await RegisterCommandsAsync();

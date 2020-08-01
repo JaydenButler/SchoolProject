@@ -13,6 +13,7 @@ namespace SchoolProject
             get;
             set;
         }
+        [BsonId]
         public string dateTime
         {
             get;

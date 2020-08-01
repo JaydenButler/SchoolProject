@@ -215,7 +215,6 @@ namespace SchoolProject
                 };
                 foreach (var rec in recs)
                 {
-
                     rec.warnings.Add (
                         new WarningModel
                         {
@@ -261,7 +260,7 @@ namespace SchoolProject
             await ReplyAsync ("", false, builder.Build ());
 
         }
-        #endregion
+
         [Command ("warnings")]
         public async Task WarningsAsync (SocketGuildUser target)
         {
@@ -273,17 +272,26 @@ namespace SchoolProject
             {
                 foreach (var rec in recs)
                 {
-                    for (int i = 0; i < rec.warnings.Count (); i++)
+                    if (rec.warnings.Count () != 0)
                     {
-                        sb.Append ($"**Warning #{i + 1}**: {rec.warnings[i].warnReason} - {rec.warnings[i].dateTime}\n\n");
-                    }
-                    amount = rec.warnings.Count ();
-                }
-                EmbedBuilder builder = new EmbedBuilder ();
-                builder.WithTitle ($"**Warnings for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
-                    .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
+                        for (int i = 0; i < rec.warnings.Count (); i++)
+                        {
+                            sb.Append ($"**Warning #{i + 1}**: {rec.warnings[i].warnReason} - {rec.warnings[i].dateTime}\n\n");
+                        }
+                        amount = rec.warnings.Count ();
+                        EmbedBuilder builder = new EmbedBuilder ();
+                        builder.WithTitle ($"**Warnings for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
+                            .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
 
-                await ReplyAsync ("", false, builder.Build ());
+                        await ReplyAsync ("", false, builder.Build ());
+                    }
+                    else
+                    {
+                        await ReplyAsync ("This user has no warnings.");
+                    }
+
+                }
+
             }
             else
             {
@@ -314,7 +322,6 @@ namespace SchoolProject
                     {
                         await ReplyAsync ("User's warning doesn't exist.");
                     }
-
                 }
             }
             else
@@ -322,9 +329,11 @@ namespace SchoolProject
                 await ReplyAsync ("This user has no warnings.");
             }
         }
+
         [Command ("rm warning")]
         public async Task RmWarningAsync (SocketGuildUser target, int warning)
         {
+
             warning -= 1;
             var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
@@ -332,24 +341,18 @@ namespace SchoolProject
             {
                 foreach (var rec in recs)
                 {
-                    if (rec.warnings[warning] != null)
-                    {
-                        MongoCRUD.Instance.DeleteWarning<UserWarnModel>(rec.userId, rec.warnings[warning].dateTime);
-                        await ReplyAsync ("User's warning removed.");
-                    }
-                    else
-                    {
-                        await ReplyAsync ("User's warning doesn't exist.");
-                    }
-
+                    rec.warnings.Remove (rec.warnings[warning]);
+                    MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
                 }
+                await ReplyAsync ("User's warning has been removed.");
             }
             else
             {
                 await ReplyAsync ("This user has no warnings.");
             }
         }
-
+        #endregion
+        
         [Command ("clear")]
         public async Task ClearAsync (int amount)
         {
