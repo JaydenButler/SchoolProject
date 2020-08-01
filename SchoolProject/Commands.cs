@@ -142,7 +142,7 @@ namespace SchoolProject
         }
 
         [Command ("rm")]
-        public async Task UnmuteAsync (string orgName)
+        public async Task UnmuteAsync ([Remainder] string orgName)
         {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
