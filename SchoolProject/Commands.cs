@@ -120,6 +120,27 @@ namespace SchoolProject
                 await ReplyAsync ("", false, builder.Build ());
             }
         }
+        [Command ("get")]
+        public async Task ReadOrgAsync (string org1, string org2)
+        {
+            string org = org1 + " " + org2;
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (Context.IsPrivate == true || Context.Channel.Name == "bot-commands" || staffRole != null)
+            {
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
+                    $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red);
+
+                if (rec.LogoLink != "N/A")
+                {
+                    builder.WithThumbnailUrl (rec.LogoLink);
+                }
+
+                await ReplyAsync ("", false, builder.Build ());
+            }
+        }
 
         [Command ("rm")]
         public async Task UnmuteAsync (string orgName)
