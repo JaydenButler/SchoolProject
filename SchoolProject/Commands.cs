@@ -74,8 +74,13 @@ namespace SchoolProject
                 var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
-                        $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red)
-                    .WithThumbnailUrl (rec.LogoLink);
+                    $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red);
+
+                if (rec.LogoLink != null)
+                {
+                    builder.WithThumbnailUrl (rec.LogoLink);
+                }
+
                 await ReplyAsync ("", false, builder.Build ());
             }
         }
