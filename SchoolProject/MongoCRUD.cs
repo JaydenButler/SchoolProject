@@ -87,15 +87,14 @@ namespace SchoolProject
             var collection = db.GetCollection<T> (table);
             var filter = Builders<T>.Filter.Eq ("_id", id);
             collection.DeleteOne (filter);
-        }
-        public void DeleteWarning<UserWarnModel> (string table, string id)
+        }   
+        public void QueryOrgs<OrgModel>(string table, string id)
         {
-            var collection = db.GetCollection<UserWarnModel> (table);
-            //something is wrong here and i might loose my shit if i dont figure it out.
-            var filter = Builders<UserWarnModel>.Filter.Eq ("warnings.0.dateTime", id);
-            var result = (collection.Find (filter).First());
-            
-            collection.DeleteOne (filter);
+            var collection = db.GetCollection<OrgModel>(table);
+            var filter = Builders<OrgModel>.Filter.Eq("warnings.", id);
+            var result = (collection.Find(filter).First());
+
+            collection.DeleteOne(filter);
         }
         public void UpdateWarning<UserWarnModel> (string table, string id, UserWarnModel record)
         {
