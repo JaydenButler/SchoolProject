@@ -64,6 +64,42 @@ namespace SchoolProject
             }
         }
 
+        [Command ("set")]
+        public async Task AddOr2gAsync (string orgName, string orgName2, string twitterLink, string facebookLink,
+            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, [Remainder] string logoLink)
+        {
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null)
+            {
+                try
+                {
+                SocialModel socialModel = new SocialModel
+                {
+                TwitterLink = twitterLink,
+                FacebookLink = facebookLink,
+                InstagramLink = instagramLink,
+                YoutubeLinks = youtubeLink,
+                TwitchTeam = twitchTeam
+                    };
+                    OrgModel orgModel = new OrgModel
+                    {
+                        OrgName = orgName + " " + orgName2, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink
+                    };
+                    MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
+                    await ReplyAsync ("Org added.");
+                }
+                catch
+                {
+                    await ReplyAsync ("An errror as occured. Please make sure that you have not entered an Organisation already in the Database.");
+                }
+            }
+            else
+            {
+                await ReplyAsync ("You do not have permission to use this command.");
+            }
+        }
+
         [Command ("get")]
         public async Task ReadOrgAsync (string org)
         {
@@ -76,7 +112,7 @@ namespace SchoolProject
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
                     $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
-                if (rec.LogoLink != null)
+                if (rec.LogoLink != "N/A")
                 {
                     builder.WithThumbnailUrl (rec.LogoLink);
                 }
