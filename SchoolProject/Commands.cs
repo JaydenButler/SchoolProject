@@ -14,19 +14,19 @@ namespace SchoolProject
     public class Commands : ModuleBase<SocketCommandContext>
     {
         // Registering a new command. Ping can be whatever, but this is what will follow the prefix we assign in the Program file. In this case, it's an !, so !ping will cause this to run.
-        [Command ("Ping")]
-        // Every command needs to be followed with a public async Task or Task<T> function.
-        public async Task PingAsync ()
-        {
-            // Creates an EmbedBuilder, something we can use to create an Embed.            
-            EmbedBuilder builder = new EmbedBuilder ();
+        // [Command ("Ping")]
+        // // Every command needs to be followed with a public async Task or Task<T> function.
+        // public async Task PingAsync ()
+        // {
+        //     // Creates an EmbedBuilder, something we can use to create an Embed.            
+        //     EmbedBuilder builder = new EmbedBuilder ();
 
-            // Gives the Embed a title, description, and side color.
-            builder.WithTitle ("Ping!").WithDescription ("This is a really nice ping.. apparently.").WithColor (Discord.Color.Red);
+        //     // Gives the Embed a title, description, and side color.
+        //     builder.WithTitle ("Ping!").WithDescription ("This is a really nice ping.. apparently.").WithColor (Discord.Color.Red);
 
-            // Replies in the channel the command was used, with an empty string, non-text to speech, and using the Embed we made earlier.
-            await ReplyAsync ("", false, builder.Build ());
-        }
+        //     // Replies in the channel the command was used, with an empty string, non-text to speech, and using the Embed we made earlier.
+        //     await ReplyAsync ("", false, builder.Build ());
+        // }
 
         [Command ("set")]
         public async Task AddOrgAsync (string orgName, string twitterLink, string facebookLink,
@@ -51,7 +51,7 @@ namespace SchoolProject
                         OrgName = orgName, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink
                     };
                     MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
-                    await ReplyAsync ("I worked");
+                    await ReplyAsync ("Org added.");
                 }
                 catch
                 {
@@ -67,9 +67,17 @@ namespace SchoolProject
         [Command ("get")]
         public async Task ReadOrgAsync (string org)
         {
-            var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
-            await ReplyAsync ($"__**{rec.OrgName}**__\nTwitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
-                $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link {rec.LogoLink}");
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (Context.IsPrivate == true || Context.Channel.Name == "bot-commands" || staffRole != null)
+            {
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
+                        $"Instagram Link: {rec.socialModel.InstagramLink}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red)
+                    .WithThumbnailUrl (rec.LogoLink);
+                await ReplyAsync ("", false, builder.Build ());
+            }
         }
 
         [Command ("rm")]
@@ -107,8 +115,11 @@ namespace SchoolProject
             {
                 sb.Append ($"{rec.OrgName}\n");
             }
-            await ReplyAsync ($"The following is the list of orgs we cater for:\n{sb.ToString()}\n*Please remember while using commands that names are case-sensitive. " +
-                $"Please use the exact name seen above.*");
+
+            EmbedBuilder builder = new EmbedBuilder ();
+            builder.WithTitle ($"**Org command list**").WithDescription ($"{sb.ToString()}").WithColor (Discord.Color.Red)
+                .WithFooter ("Please remember while using commands that names are case-sensitive.");
+            await ReplyAsync ("", false, builder.Build ());
         }
         #region Mute related
         [Command ("mute")]
@@ -176,7 +187,10 @@ namespace SchoolProject
 
                     await targetFake.AddRoleAsync (muteRole);
 
-                    await targetFake.SendMessageAsync ($"You have been muted by a moderator.\nDuration: {time}\nReason: {reason}");
+                    EmbedBuilder builder = new EmbedBuilder ();
+                    builder.WithTitle ($"**You have been muted in the OEA**").WithDescription ($"Duration: {time}\nReason: {reason}").WithColor (Discord.Color.Red)
+                        .WithFooter ("If you think this was an error, please contact a moderator.");
+                    await targetFake.SendMessageAsync ("", false, builder.Build ());
 
                     await ReplyAsync ($"<@{targetFake.Id}> was muted by <@{Context.User.Id}>.\n" +
                         $"Duration: {time}\n" +

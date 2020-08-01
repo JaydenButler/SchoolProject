@@ -27,7 +27,7 @@ namespace SchoolProject
         public async Task CheckMutesAsync()
         {
             DateTime todayDateTime = DateTime.UtcNow;
-            await Task.Delay(5000);
+            await Task.Delay(120000);
 
             var recs = MongoCRUD.Instance.LoadRecords<MuteModel>("Mutes");
 
