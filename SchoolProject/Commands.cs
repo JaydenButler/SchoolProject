@@ -203,230 +203,261 @@ namespace SchoolProject
 
         }
 
-        [Command("orgs")]
-        public async Task OrgsAsync()
+        [Command ("orgs")]
+        public async Task OrgsAsync ()
         {
+
             var user = Context.User as SocketGuildUser;
             if (Context.IsPrivate == true)
             {
-                var recs = MongoCRUD.Instance.LoadRecords<OrgModel>("OrgDatabase");
-                StringBuilder sb = new StringBuilder();
+                var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
+                StringBuilder sb = new StringBuilder ();
+                List<string> orgsList = new List<string> ();
                 foreach (var rec in recs)
                 {
-                    sb.Append($"{rec.OrgName}\n");
+                    orgsList.Add (rec.OrgName);
                 }
-
-                EmbedBuilder builder = new EmbedBuilder();
-                builder.WithTitle($"**Org command list**").WithDescription($"{sb.ToString()}").WithColor(Discord.Color.Red)
-                    .WithFooter("Please remember while using commands that names are case-sensitive.");
-                await ReplyAsync("", false, builder.Build());
+                String[] orgs = orgsList.ToArray ();
+                Array.Sort (orgs);
+                for (int i = 0; i < orgs.Count (); i++)
+                {
+                    sb.Append ($"{orgs[i]}\n");
+                }
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**Org command list**").WithDescription ($"{sb.ToString()}").WithColor (Discord.Color.Red)
+                    .WithFooter ("Please remember while using commands that names are case-sensitive.");
+                await ReplyAsync ("", false, builder.Build ());
             }
             else
             {
-                var staffRole = user.Roles.FirstOrDefault(x => x.Name == "Staff");
+                var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
                 if (Context.Channel.Name == "bot-commands" || staffRole != null)
                 {
-                    var recs = MongoCRUD.Instance.LoadRecords<OrgModel>("OrgDatabase");
-                    StringBuilder sb = new StringBuilder();
+                    var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
+                    StringBuilder sb = new StringBuilder ();
+                    List<string> orgsList = new List<string> ();
                     foreach (var rec in recs)
                     {
-                        sb.Append($"{rec.OrgName}\n");
-                    }          
-
-                    EmbedBuilder builder = new EmbedBuilder();
-                    builder.WithTitle($"**Org command list**").WithDescription($"{sb.ToString()}").WithColor(Discord.Color.Red)
-                        .WithFooter("Please remember while using commands that names are case-sensitive.");
-                    await ReplyAsync("", false, builder.Build());
+                        orgsList.Add (rec.OrgName);
+                    }
+                    String[] orgs = orgsList.ToArray ();
+                    Array.Sort (orgs);
+                    for (int i = 0; i < orgs.Count (); i++)
+                    {
+                        sb.Append ($"{orgs[i]}\n");
+                    }
+                    EmbedBuilder builder = new EmbedBuilder ();
+                    builder.WithTitle ($"**Org command list**").WithDescription ($"{sb.ToString()}").WithColor (Discord.Color.Red)
+                        .WithFooter ("Please remember while using commands that names are case-sensitive.");
+                    await ReplyAsync ("", false, builder.Build ());
                 }
             }
         }
-        [Command("query")]
-        public async Task QueryEmptyAsync()
+
+        [Command ("query")]
+        public async Task QueryEmptyAsync ()
         {
             var user = Context.User as SocketGuildUser;
             if (Context.IsPrivate == true)
             {
-                EmbedBuilder builder = new EmbedBuilder();
-                builder.WithTitle($"**Query Commands**").WithDescription($"```!query twitter```\n ```!query facebook```\n ```!query instagram```\n ```!query youtube```\n ```!query twitch```\n ```!query websites```\n ```!query logos```").WithColor(Discord.Color.Red);
-                await ReplyAsync("", false, builder.Build());
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**Query Commands**").WithDescription ($"```!query twitter```\n ```!query facebook```\n ```!query instagram```\n ```!query youtube```\n ```!query twitch```\n ```!query websites```\n ```!query logos```").WithColor (Discord.Color.Red);
+                await ReplyAsync ("", false, builder.Build ());
             }
             else
             {
-                var staffRole = user.Roles.FirstOrDefault(x => x.Name == "Staff");
+                var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
                 if (Context.Channel.Name == "bot-commands" || staffRole != null)
                 {
-                    EmbedBuilder builder = new EmbedBuilder();
-                    builder.WithTitle($"**Query Commands**").WithDescription($"```!query twitter```\n ```!query facebook```\n ```!query instagram```\n ```!query youtube```\n ```!query twitch```\n ```!query websites```\n ```!query logos```").WithColor(Discord.Color.Red);
-                    await ReplyAsync("", false, builder.Build());
+                    EmbedBuilder builder = new EmbedBuilder ();
+                    builder.WithTitle ($"**Query Commands**").WithDescription ($"```!query twitter```\n ```!query facebook```\n ```!query instagram```\n ```!query youtube```\n ```!query twitch```\n ```!query websites```\n ```!query logos```").WithColor (Discord.Color.Red);
+                    await ReplyAsync ("", false, builder.Build ());
                 }
             }
         }
 
-    
-        [Command("query")]
-        public async Task QueryAsync(string query)
+        [Command ("query")]
+        public async Task QueryAsync (string query)
         {
-            var recs = MongoCRUD.Instance.LoadRecords<OrgModel>("OrgDatabase");
-            StringBuilder sb = new StringBuilder();
+            var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
+            StringBuilder sb = new StringBuilder ();
 
             var user = Context.User as SocketGuildUser;
+
+            List<string> orgsList = new List<string> ();
             if (Context.IsPrivate == true)
             {
-                if (query.ToLower() == "twitter")
+                if (query.ToLower () == "twitter")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.socialModel.TwitterLink != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.socialModel.TwitterLink})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitterLink})\n");
                         }
 
                     }
                 }
-                else if (query.ToLower() == "facebook")
+                else if (query.ToLower () == "facebook")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.socialModel.FacebookLink != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.socialModel.FacebookLink})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.FacebookLink})\n");
                         }
 
                     }
                 }
-                else if (query.ToLower() == "instagram")
+                else if (query.ToLower () == "instagram")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.socialModel.InstagramLink != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.socialModel.InstagramLink})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.InstagramLink})\n");
                         }
                     }
                 }
-                else if (query.ToLower() == "youtube")
+                else if (query.ToLower () == "youtube")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.socialModel.YoutubeLinks != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.socialModel.YoutubeLinks})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.YoutubeLinks})\n");
                         }
                     }
                 }
-                else if (query.ToLower() == "twitch")
+                else if (query.ToLower () == "twitch")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.socialModel.TwitchTeam != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.socialModel.TwitchTeam})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitchTeam})\n");
                         }
                     }
                 }
-                else if (query.ToLower() == "websites")
+                else if (query.ToLower () == "websites")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.WebsiteLink != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.WebsiteLink})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.WebsiteLink})\n");
                         }
                     }
                 }
-                else if (query.ToLower() == "logos")
+                else if (query.ToLower () == "logos")
                 {
                     foreach (var rec in recs)
                     {
                         if (rec.LogoLink != "N/A")
                         {
-                            sb.Append($"[{rec.OrgName}]({rec.LogoLink})\n");
+                            orgsList.Add ($"[{rec.OrgName}]({rec.LogoLink})\n");
                         }
                     }
                 }
+                String[] orgs = orgsList.ToArray ();
+                Array.Sort (orgs);
+                for (int i = 0; i < orgs.Count (); i++)
+                {
+                    sb.Append ($"{orgs[i]}\n");
+                }
+                EmbedBuilder builder = new EmbedBuilder ();
+                builder.WithTitle ($"**Query Results for: {query}**").WithDescription (sb.ToString ()).WithColor (Discord.Color.Red);
+                await ReplyAsync ("", false, builder.Build ());
             }
             else
             {
-                var staffRole = user.Roles.FirstOrDefault(x => x.Name == "Staff");
+                var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
                 if (Context.Channel.Name == "bot-commands" || staffRole != null)
                 {
-                    if (query.ToLower() == "twitter")
+                    if (query.ToLower () == "twitter")
                     {
                         foreach (var rec in recs)
                         {
+
                             if (rec.socialModel.TwitterLink != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.socialModel.TwitterLink})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitterLink})\n");
                             }
 
                         }
                     }
-                    else if (query.ToLower() == "facebook")
+                    else if (query.ToLower () == "facebook")
                     {
                         foreach (var rec in recs)
                         {
                             if (rec.socialModel.FacebookLink != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.socialModel.FacebookLink})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.FacebookLink})\n");
                             }
 
                         }
                     }
-                    else if (query.ToLower() == "instagram")
+                    else if (query.ToLower () == "instagram")
                     {
                         foreach (var rec in recs)
                         {
                             if (rec.socialModel.InstagramLink != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.socialModel.InstagramLink})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.InstagramLink})\n");
                             }
                         }
                     }
-                    else if (query.ToLower() == "youtube")
+                    else if (query.ToLower () == "youtube")
                     {
                         foreach (var rec in recs)
                         {
                             if (rec.socialModel.YoutubeLinks != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.socialModel.YoutubeLinks})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.YoutubeLinks})\n");
                             }
                         }
                     }
-                    else if (query.ToLower() == "twitch")
+                    else if (query.ToLower () == "twitch")
                     {
                         foreach (var rec in recs)
                         {
                             if (rec.socialModel.TwitchTeam != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.socialModel.TwitchTeam})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitchTeam})\n");
                             }
                         }
                     }
-                    else if (query.ToLower() == "websites")
+                    else if (query.ToLower () == "websites")
                     {
                         foreach (var rec in recs)
                         {
                             if (rec.WebsiteLink != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.WebsiteLink})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.WebsiteLink})\n");
                             }
                         }
                     }
-                    else if (query.ToLower() == "logos")
+                    else if (query.ToLower () == "logos")
                     {
                         foreach (var rec in recs)
                         {
                             if (rec.LogoLink != "N/A")
                             {
-                                sb.Append($"[{rec.OrgName}]({rec.LogoLink})\n");
+                                orgsList.Add ($"[{rec.OrgName}]({rec.LogoLink})\n");
                             }
                         }
                     }
+                    String[] orgs = orgsList.ToArray ();
+                    Array.Sort (orgs);
+                    for (int i = 0; i < orgs.Count (); i++)
+                    {
+                        sb.Append ($"{orgs[i]}\n");
+                    }
+                    EmbedBuilder builder = new EmbedBuilder ();
+                    builder.WithTitle ($"**Query Results for: {query}**").WithDescription (sb.ToString ()).WithColor (Discord.Color.Red);
+                    await ReplyAsync ("", false, builder.Build ());
                 }
             }
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.WithTitle($"**Query Results for: {query}**").WithDescription(sb.ToString()).WithColor(Discord.Color.Red);
-            await ReplyAsync("", false, builder.Build());
         }
 
         #region Mute related
