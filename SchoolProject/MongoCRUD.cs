@@ -12,6 +12,7 @@ namespace SchoolProject
     {
         public string database = "OEA";
         private static MongoCRUD instance;
+        private IMongoDatabase db;
 
         public static MongoCRUD Instance
         {
@@ -25,8 +26,6 @@ namespace SchoolProject
                 return instance;
             }
         }
-
-        private IMongoDatabase db;
 
         public MongoCRUD ()
         {

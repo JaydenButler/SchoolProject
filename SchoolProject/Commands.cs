@@ -107,9 +107,9 @@ namespace SchoolProject
             if (Context.IsPrivate == true)
             {
                 var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
-                EmbedBuilder builder = new EmbedBuilder ();
-                builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
-                    $"Instagram Link: {rec.socialModel.InstagramLink}\nYoutube Channel: {rec.socialModel.YoutubeLinks}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red);
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
+                        $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
                 if (rec.LogoLink != "N/A")
                 {
@@ -147,8 +147,8 @@ namespace SchoolProject
             {
                 var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
                 EmbedBuilder builder = new EmbedBuilder ();
-                builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
-                    $"Instagram Link: {rec.socialModel.InstagramLink}\nYoutube Channel: {rec.socialModel.YoutubeLinks}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red);
+                builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
+                        $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
                 if (rec.LogoLink != "N/A")
                 {
@@ -164,8 +164,8 @@ namespace SchoolProject
                 {
                     var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
                     EmbedBuilder builder = new EmbedBuilder ();
-                    builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter Link: {rec.socialModel.TwitterLink}\nFacebook Link: {rec.socialModel.FacebookLink}\n" +
-                        $"Instagram Link: {rec.socialModel.InstagramLink}\nYoutube Channel: {rec.socialModel.YoutubeLinks}\nTwitch Team: {rec.socialModel.TwitchTeam}\nWebsite Link: {rec.WebsiteLink}\nLogo Link: {rec.LogoLink}").WithColor (Discord.Color.Red);
+                    builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
+                        $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
                     if (rec.LogoLink != "N/A")
                     {
