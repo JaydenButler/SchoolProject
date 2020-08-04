@@ -29,45 +29,18 @@ namespace SchoolProject
         // }
 
         [Command ("set")]
-        public async Task AddOrgAsync (string orgName, string twitterLink, string facebookLink,
+        public async Task AddOrgAsync (string orgName1, int tier, string twitterLink, string facebookLink,
             string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, string logoLink)
         {
-            var user = Context.User as SocketGuildUser;
-            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
+            string orgName;
+            if (orgName1.Contains ("+"))
             {
-                try
-                {
-                SocialModel socialModel = new SocialModel
-                {
-                TwitterLink = twitterLink,
-                FacebookLink = facebookLink,
-                InstagramLink = instagramLink,
-                YoutubeLinks = youtubeLink,
-                TwitchTeam = twitchTeam
-                    };
-                    OrgModel orgModel = new OrgModel
-                    {
-                        OrgName = orgName, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink
-                    };
-                    MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
-                    await ReplyAsync ("Org added.");
-                }
-                catch
-                {
-                    await ReplyAsync ("An errror as occured. Please make sure that you have not entered an Organisation already in the Database.");
-                }
+                orgName = orgName1.Replace ("+", " ");
             }
             else
             {
-                await ReplyAsync ("You do not have permission to use this command.");
+                orgName = orgName1;
             }
-        }
-
-        [Command ("set")]
-        public async Task AddOr2gAsync (string orgName, string orgName2, string twitterLink, string facebookLink,
-            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, string logoLink)
-        {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
             if (staffRole != null)
@@ -84,7 +57,11 @@ namespace SchoolProject
                     };
                     OrgModel orgModel = new OrgModel
                     {
-                        OrgName = orgName + " " + orgName2, socialModel = socialModel, WebsiteLink = websiteLink, LogoLink = logoLink
+                        OrgName = orgName,
+                        socialModel = socialModel,
+                        WebsiteLink = websiteLink,
+                        LogoLink = logoLink,
+                        Tier = tier
                     };
                     MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
                     await ReplyAsync ("Org added.");
@@ -107,9 +84,9 @@ namespace SchoolProject
             if (Context.IsPrivate == true)
             {
                 var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
-                EmbedBuilder builder = new EmbedBuilder();
+                EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
-                        $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
+                    $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
                 if (rec.LogoLink != "N/A")
                 {
@@ -148,7 +125,7 @@ namespace SchoolProject
                 var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
-                        $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
+                    $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
                 if (rec.LogoLink != "N/A")
                 {
@@ -212,16 +189,10 @@ namespace SchoolProject
             {
                 var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
                 StringBuilder sb = new StringBuilder ();
-                List<string> orgsList = new List<string> ();
-                foreach (var rec in recs)
+                var sortedList = recs.OrderBy (rec => rec.OrgName).ThenBy (rec => rec.Tier).ToList ();
+                for (int i = 0; i < sortedList.Count (); i++)
                 {
-                    orgsList.Add (rec.OrgName);
-                }
-                String[] orgs = orgsList.ToArray ();
-                Array.Sort (orgs);
-                for (int i = 0; i < orgs.Count (); i++)
-                {
-                    sb.Append ($"{orgs[i]}\n");
+                    sb.Append ($"{sortedList[i].OrgName}\n");
                 }
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**Org command list**").WithDescription ($"{sb.ToString()}").WithColor (Discord.Color.Red)
@@ -235,16 +206,10 @@ namespace SchoolProject
                 {
                     var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
                     StringBuilder sb = new StringBuilder ();
-                    List<string> orgsList = new List<string> ();
-                    foreach (var rec in recs)
+                    var sortedList = recs.OrderBy (rec => rec.Tier).ThenBy (rec => rec.OrgName).ToList ();
+                    for (int i = 0; i < sortedList.Count (); i++)
                     {
-                        orgsList.Add (rec.OrgName);
-                    }
-                    String[] orgs = orgsList.ToArray ();
-                    Array.Sort (orgs);
-                    for (int i = 0; i < orgs.Count (); i++)
-                    {
-                        sb.Append ($"{orgs[i]}\n");
+                        sb.Append ($"{sortedList[i].OrgName}\n");
                     }
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**Org command list**").WithDescription ($"{sb.ToString()}").WithColor (Discord.Color.Red)

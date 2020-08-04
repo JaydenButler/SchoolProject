@@ -14,6 +14,11 @@ namespace SchoolProject
             get;
             set;
         }
+        public int Tier
+        {
+            get;
+            set;
+        }
         public string WebsiteLink
         {
             get;

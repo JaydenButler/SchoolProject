@@ -51,7 +51,7 @@ namespace SchoolProject
             _services = new ServiceCollection().AddSingleton(_client).AddSingleton(_commands).BuildServiceProvider();
 
             // This is your bot token. You get this from http://www.discordapp.com/developers/, if you need help, read the README in the repository.
-            string botToken = "NzM4OTk5MTUyMzAxODM0MzA0.XyUElw.5mQupHv6XfaBBH28KmFeqtUUEfQ";
+            string botToken = "NjI3MDQzNzgwMTA0NjgzNTIx.XxgDwg.gmdSRg1jNgcnQQ5VIdPlaqlGQzg";
             // OEA BOT NzM4OTk5MTUyMzAxODM0MzA0.XyUElw.5mQupHv6XfaBBH28KmFeqtUUEfQ
             // TEST BOT NjI3MDQzNzgwMTA0NjgzNTIx.XxgDwg.gmdSRg1jNgcnQQ5VIdPlaqlGQzg
 
