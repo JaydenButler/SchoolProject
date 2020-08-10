@@ -76,14 +76,28 @@ namespace SchoolProject
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
-
+        [Command ("alias")]
+        public async Task AliasSetAsync(string org1, [Remainder] string aliases1)
+        {
+            var user = Context.User as SocketGuildUser;
+            var staffRole = user.Roles.FirstOrDefault(x => x.Name == "Staff");
+            if(staffRole != null)
+            {
+                string org = org1.Replace("+", " ");
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel>(org, "OrgDatabase", "OrgName");
+                var aliases = aliases1.ToLower().Split(",");
+                rec.Aliases = aliases;
+                MongoCRUD.Instance.UpdateWarning<OrgModel>("OrgDatabase", rec.OrgName, rec);
+                await ReplyAsync("I worked!");
+            }
+        }
         [Command ("get")]
         public async Task ReadOrgAsync (string org)
         {
             var user = Context.User as SocketGuildUser;
             if (Context.IsPrivate == true)
             {
-                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org.ToLower(), "OrgDatabase", "Alises");
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
                     $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
@@ -100,7 +114,7 @@ namespace SchoolProject
                 var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
                 if (Context.Channel.Name == "bot-commands" || staffRole != null)
                 {
-                    var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+                    var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "Aliases");
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
                         $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);

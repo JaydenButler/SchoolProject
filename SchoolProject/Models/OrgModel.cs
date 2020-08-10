@@ -14,6 +14,11 @@ namespace SchoolProject
             get;
             set;
         }
+        public string[] Aliases
+        {
+            get;
+            set;
+        }
         public int Tier
         {
             get;

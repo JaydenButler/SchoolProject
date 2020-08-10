@@ -107,6 +107,19 @@ namespace SchoolProject
                     IsUpsert = true
                 });
         }
+        public void UpdateAlias<OrgModel>(string table, string id, OrgModel record)
+        {
+            var collection = db.GetCollection<OrgModel>(table);
+
+            var result = collection.ReplaceOne(
+                new BsonDocument("OrgName", id),
+                record,
+                new ReplaceOptions
+                {
+                    IsUpsert = true
+                });
+        }
+
     }
 
 }
