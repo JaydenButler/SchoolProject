@@ -8,11 +8,9 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
-namespace SchoolProject
-{
+namespace SchoolProject {
     // This is the Commands class. We need to inherit the Context class through our Modules so we can use Context.
-    public class Commands : ModuleBase<SocketCommandContext>
-    {
+    public class Commands : ModuleBase<SocketCommandContext> {
         // Registering a new command. Ping can be whatever, but this is what will follow the prefix we assign in the Program file. In this case, it's an !, so !ping will cause this to run.
         // [Command ("Ping")]
         // // Every command needs to be followed with a public async Task or Task<T> function.
@@ -30,33 +28,25 @@ namespace SchoolProject
 
         [Command ("set")]
         public async Task AddOrgAsync (string orgName1, int tier, string twitterLink, string facebookLink,
-            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, string logoLink)
-        {
+            string instagramLink, string youtubeLink, string twitchTeam, string websiteLink, string logoLink) {
             string orgName;
-            if (orgName1.Contains ("+"))
-            {
+            if (orgName1.Contains ("+")) {
                 orgName = orgName1.Replace ("+", " ");
-            }
-            else
-            {
+            } else {
                 orgName = orgName1;
             }
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
-                try
-                {
-                SocialModel socialModel = new SocialModel
-                {
+            if (staffRole != null) {
+                try {
+                SocialModel socialModel = new SocialModel {
                 TwitterLink = twitterLink,
                 FacebookLink = facebookLink,
                 InstagramLink = instagramLink,
                 YoutubeLinks = youtubeLink,
                 TwitchTeam = twitchTeam
                     };
-                    OrgModel orgModel = new OrgModel
-                    {
+                    OrgModel orgModel = new OrgModel {
                         OrgName = orgName,
                         socialModel = socialModel,
                         WebsiteLink = websiteLink,
@@ -65,62 +55,51 @@ namespace SchoolProject
                     };
                     MongoCRUD.Instance.InsertRecord ("OrgDatabase", orgModel);
                     await ReplyAsync ("Org added.");
-                }
-                catch
-                {
+                } catch {
                     await ReplyAsync ("An errror as occured. Please make sure that you have not entered an Organisation already in the Database.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
+
         [Command ("alias")]
-        public async Task AliasSetAsync(string org1, [Remainder] string aliases1)
-        {
+        public async Task AliasSetAsync (string org1, [Remainder] string aliases1) {
             var user = Context.User as SocketGuildUser;
-            var staffRole = user.Roles.FirstOrDefault(x => x.Name == "Staff");
-            if(staffRole != null)
-            {
-                string org = org1.Replace("+", " ");
-                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel>(org, "OrgDatabase", "OrgName");
-                var aliases = aliases1.ToLower().Split(",");
+            var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
+            if (staffRole != null) {
+                string org = org1.Replace ("+", " ");
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+                var aliases = aliases1.ToLower ().Split (",");
                 rec.Aliases = aliases;
-                MongoCRUD.Instance.UpdateWarning<OrgModel>("OrgDatabase", rec.OrgName, rec);
-                await ReplyAsync("I worked!");
+                MongoCRUD.Instance.UpdateWarning<OrgModel> ("OrgDatabase", rec.OrgName, rec);
+                await ReplyAsync ("I worked!");
             }
         }
+
         [Command ("get")]
-        public async Task ReadOrgAsync (string org)
-        {
+        public async Task ReadOrgAsync (string org) {
             var user = Context.User as SocketGuildUser;
-            if (Context.IsPrivate == true)
-            {
-                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org.ToLower(), "OrgDatabase", "Alises");
+            if (Context.IsPrivate == true) {
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org.ToLower (), "OrgDatabase", "Alises");
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
                     $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
-                if (rec.LogoLink != "N/A")
-                {
+                if (rec.LogoLink != "N/A") {
                     builder.WithThumbnailUrl (rec.LogoLink);
                 }
 
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-                if (Context.Channel.Name == "bot-commands" || staffRole != null)
-                {
-                    var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "Aliases");
+                if (Context.Channel.Name == "bot-commands" || staffRole != null) {
+                    var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org.ToLower (), "OrgDatabase", "Aliases");
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
                         $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
-                    if (rec.LogoLink != "N/A")
-                    {
+                    if (rec.LogoLink != "N/A") {
                         builder.WithThumbnailUrl (rec.LogoLink);
                     }
 
@@ -130,36 +109,29 @@ namespace SchoolProject
         }
 
         [Command ("get")]
-        public async Task ReadOrgAsync (string org1, string org2)
-        {
-            string org = org1 + " " + org2;
+        public async Task ReadOrgAsync (string org1, string org2) {
+            string org = org1.ToLower () + " " + org2.ToLower ();
             var user = Context.User as SocketGuildUser;
-            if (Context.IsPrivate == true)
-            {
-                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+            if (Context.IsPrivate == true) {
+                var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org.ToLower (), "OrgDatabase", "Alises");
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
                     $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
-                if (rec.LogoLink != "N/A")
-                {
+                if (rec.LogoLink != "N/A") {
                     builder.WithThumbnailUrl (rec.LogoLink);
                 }
 
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-                if (Context.Channel.Name == "bot-commands" || staffRole != null)
-                {
-                    var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org, "OrgDatabase", "OrgName");
+                if (Context.Channel.Name == "bot-commands" || staffRole != null) {
+                    var rec = MongoCRUD.Instance.LoadRecordById<OrgModel> (org.ToLower (), "OrgDatabase", "Aliases");
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**{rec.OrgName}**").WithDescription ($"Twitter: {rec.socialModel.TwitterLink}\nFacebook: {rec.socialModel.FacebookLink}\n" +
                         $"Instagram: {rec.socialModel.InstagramLink}\nYoutube: {rec.socialModel.YoutubeLinks}\nTwitch: {rec.socialModel.TwitchTeam}\nWebsite: {rec.WebsiteLink}\nLogo: {rec.LogoLink}").WithColor (Discord.Color.Red);
 
-                    if (rec.LogoLink != "N/A")
-                    {
+                    if (rec.LogoLink != "N/A") {
                         builder.WithThumbnailUrl (rec.LogoLink);
                     }
 
@@ -169,60 +141,46 @@ namespace SchoolProject
         }
 
         [Command ("rm")]
-        public async Task UnmuteAsync ([Remainder] string orgName)
-        {
+        public async Task UnmuteAsync ([Remainder] string orgName) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
-                try
-                {
+            if (staffRole != null) {
+                try {
                     MongoCRUD.Instance.Delete<OrgModel> ("OrgDatabase", orgName);
 
                     await ReplyAsync ($"{orgName} has been removed from the Orgs Database.");
-                }
-                catch
-                {
+                } catch {
                     await ReplyAsync ("An error as occured. Please ensure you have entered the correct information and you aren't trying to remove something " +
                         "that doesn't exist.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
 
         }
 
         [Command ("orgs")]
-        public async Task OrgsAsync ()
-        {
+        public async Task OrgsAsync () {
 
             var user = Context.User as SocketGuildUser;
-            if (Context.IsPrivate == true)
-            {
+            if (Context.IsPrivate == true) {
                 var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
                 StringBuilder sb = new StringBuilder ();
                 var sortedList = recs.OrderBy (rec => rec.OrgName).ThenBy (rec => rec.Tier).ToList ();
-                for (int i = 0; i < sortedList.Count (); i++)
-                {
+                for (int i = 0; i < sortedList.Count (); i++) {
                     sb.Append ($"{sortedList[i].OrgName}\n");
                 }
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**Org command list**").WithDescription ($"{sb.ToString()}").WithColor (Discord.Color.Red)
                     .WithFooter ("Please remember while using commands that names are case-sensitive.");
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-                if (Context.Channel.Name == "bot-commands" || staffRole != null)
-                {
+                if (Context.Channel.Name == "bot-commands" || staffRole != null) {
                     var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
                     StringBuilder sb = new StringBuilder ();
                     var sortedList = recs.OrderBy (rec => rec.Tier).ThenBy (rec => rec.OrgName).ToList ();
-                    for (int i = 0; i < sortedList.Count (); i++)
-                    {
+                    for (int i = 0; i < sortedList.Count (); i++) {
                         sb.Append ($"{sortedList[i].OrgName}\n");
                     }
                     EmbedBuilder builder = new EmbedBuilder ();
@@ -234,20 +192,15 @@ namespace SchoolProject
         }
 
         [Command ("query")]
-        public async Task QueryEmptyAsync ()
-        {
+        public async Task QueryEmptyAsync () {
             var user = Context.User as SocketGuildUser;
-            if (Context.IsPrivate == true)
-            {
+            if (Context.IsPrivate == true) {
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**Query Commands**").WithDescription ($"```!query twitter```\n ```!query facebook```\n ```!query instagram```\n ```!query youtube```\n ```!query twitch```\n ```!query websites```\n ```!query logos```").WithColor (Discord.Color.Red);
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-                if (Context.Channel.Name == "bot-commands" || staffRole != null)
-                {
+                if (Context.Channel.Name == "bot-commands" || staffRole != null) {
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**Query Commands**").WithDescription ($"```!query twitter```\n ```!query facebook```\n ```!query instagram```\n ```!query youtube```\n ```!query twitch```\n ```!query websites```\n ```!query logos```").WithColor (Discord.Color.Red);
                     await ReplyAsync ("", false, builder.Build ());
@@ -256,180 +209,119 @@ namespace SchoolProject
         }
 
         [Command ("query")]
-        public async Task QueryAsync (string query)
-        {
+        public async Task QueryAsync (string query) {
             var recs = MongoCRUD.Instance.LoadRecords<OrgModel> ("OrgDatabase");
             StringBuilder sb = new StringBuilder ();
 
             var user = Context.User as SocketGuildUser;
 
             List<string> orgsList = new List<string> ();
-            if (Context.IsPrivate == true)
-            {
-                if (query.ToLower () == "twitter")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.socialModel.TwitterLink != "N/A")
-                        {
+            if (Context.IsPrivate == true) {
+                if (query.ToLower () == "twitter") {
+                    foreach (var rec in recs) {
+                        if (rec.socialModel.TwitterLink != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitterLink})\n");
                         }
 
                     }
-                }
-                else if (query.ToLower () == "facebook")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.socialModel.FacebookLink != "N/A")
-                        {
+                } else if (query.ToLower () == "facebook") {
+                    foreach (var rec in recs) {
+                        if (rec.socialModel.FacebookLink != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.FacebookLink})\n");
                         }
 
                     }
-                }
-                else if (query.ToLower () == "instagram")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.socialModel.InstagramLink != "N/A")
-                        {
+                } else if (query.ToLower () == "instagram") {
+                    foreach (var rec in recs) {
+                        if (rec.socialModel.InstagramLink != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.InstagramLink})\n");
                         }
                     }
-                }
-                else if (query.ToLower () == "youtube")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.socialModel.YoutubeLinks != "N/A")
-                        {
+                } else if (query.ToLower () == "youtube") {
+                    foreach (var rec in recs) {
+                        if (rec.socialModel.YoutubeLinks != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.YoutubeLinks})\n");
                         }
                     }
-                }
-                else if (query.ToLower () == "twitch")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.socialModel.TwitchTeam != "N/A")
-                        {
+                } else if (query.ToLower () == "twitch") {
+                    foreach (var rec in recs) {
+                        if (rec.socialModel.TwitchTeam != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitchTeam})\n");
                         }
                     }
-                }
-                else if (query.ToLower () == "websites")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.WebsiteLink != "N/A")
-                        {
+                } else if (query.ToLower () == "websites") {
+                    foreach (var rec in recs) {
+                        if (rec.WebsiteLink != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.WebsiteLink})\n");
                         }
                     }
-                }
-                else if (query.ToLower () == "logos")
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.LogoLink != "N/A")
-                        {
+                } else if (query.ToLower () == "logos") {
+                    foreach (var rec in recs) {
+                        if (rec.LogoLink != "N/A") {
                             orgsList.Add ($"[{rec.OrgName}]({rec.LogoLink})\n");
                         }
                     }
                 }
                 String[] orgs = orgsList.ToArray ();
                 Array.Sort (orgs);
-                for (int i = 0; i < orgs.Count (); i++)
-                {
+                for (int i = 0; i < orgs.Count (); i++) {
                     sb.Append ($"{orgs[i]}\n");
                 }
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**Query Results for: {query}**").WithDescription (sb.ToString ()).WithColor (Discord.Color.Red);
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-                if (Context.Channel.Name == "bot-commands" || staffRole != null)
-                {
-                    if (query.ToLower () == "twitter")
-                    {
-                        foreach (var rec in recs)
-                        {
+                if (Context.Channel.Name == "bot-commands" || staffRole != null) {
+                    if (query.ToLower () == "twitter") {
+                        foreach (var rec in recs) {
 
-                            if (rec.socialModel.TwitterLink != "N/A")
-                            {
+                            if (rec.socialModel.TwitterLink != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitterLink})\n");
                             }
 
                         }
-                    }
-                    else if (query.ToLower () == "facebook")
-                    {
-                        foreach (var rec in recs)
-                        {
-                            if (rec.socialModel.FacebookLink != "N/A")
-                            {
+                    } else if (query.ToLower () == "facebook") {
+                        foreach (var rec in recs) {
+                            if (rec.socialModel.FacebookLink != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.FacebookLink})\n");
                             }
 
                         }
-                    }
-                    else if (query.ToLower () == "instagram")
-                    {
-                        foreach (var rec in recs)
-                        {
-                            if (rec.socialModel.InstagramLink != "N/A")
-                            {
+                    } else if (query.ToLower () == "instagram") {
+                        foreach (var rec in recs) {
+                            if (rec.socialModel.InstagramLink != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.InstagramLink})\n");
                             }
                         }
-                    }
-                    else if (query.ToLower () == "youtube")
-                    {
-                        foreach (var rec in recs)
-                        {
-                            if (rec.socialModel.YoutubeLinks != "N/A")
-                            {
+                    } else if (query.ToLower () == "youtube") {
+                        foreach (var rec in recs) {
+                            if (rec.socialModel.YoutubeLinks != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.YoutubeLinks})\n");
                             }
                         }
-                    }
-                    else if (query.ToLower () == "twitch")
-                    {
-                        foreach (var rec in recs)
-                        {
-                            if (rec.socialModel.TwitchTeam != "N/A")
-                            {
+                    } else if (query.ToLower () == "twitch") {
+                        foreach (var rec in recs) {
+                            if (rec.socialModel.TwitchTeam != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.socialModel.TwitchTeam})\n");
                             }
                         }
-                    }
-                    else if (query.ToLower () == "websites")
-                    {
-                        foreach (var rec in recs)
-                        {
-                            if (rec.WebsiteLink != "N/A")
-                            {
+                    } else if (query.ToLower () == "websites") {
+                        foreach (var rec in recs) {
+                            if (rec.WebsiteLink != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.WebsiteLink})\n");
                             }
                         }
-                    }
-                    else if (query.ToLower () == "logos")
-                    {
-                        foreach (var rec in recs)
-                        {
-                            if (rec.LogoLink != "N/A")
-                            {
+                    } else if (query.ToLower () == "logos") {
+                        foreach (var rec in recs) {
+                            if (rec.LogoLink != "N/A") {
                                 orgsList.Add ($"[{rec.OrgName}]({rec.LogoLink})\n");
                             }
                         }
                     }
                     String[] orgs = orgsList.ToArray ();
                     Array.Sort (orgs);
-                    for (int i = 0; i < orgs.Count (); i++)
-                    {
+                    for (int i = 0; i < orgs.Count (); i++) {
                         sb.Append ($"{orgs[i]}\n");
                     }
                     EmbedBuilder builder = new EmbedBuilder ();
@@ -441,29 +333,23 @@ namespace SchoolProject
 
         #region Mute related
         [Command ("mute")]
-        public async Task MuteAsync (SocketGuildUser targetFake, string time, [Remainder] string reason)
-        {
+        public async Task MuteAsync (SocketGuildUser targetFake, string time, [Remainder] string reason) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
 
-                if (DiscordBot.Instance.currentServer != null)
-                {
-                ModeratorModel moderator = new ModeratorModel
-                {
+                if (DiscordBot.Instance.currentServer != null) {
+                ModeratorModel moderator = new ModeratorModel {
                 Username = Context.User.Username,
                 Discriminator = Context.User.DiscriminatorValue,
                 id = Context.User.Id
                     };
-                    TargetModel target = new TargetModel
-                    {
+                    TargetModel target = new TargetModel {
                         Username = targetFake.Username,
                         Discriminator = targetFake.DiscriminatorValue,
                         id = targetFake.Id
                     };
-                    MuteModel muteModel = new MuteModel
-                    {
+                    MuteModel muteModel = new MuteModel {
                         timeMuted = System.DateTime.Now,
                         isMuted = true,
                         reason = reason,
@@ -471,26 +357,21 @@ namespace SchoolProject
                         target = target
                     };
                     #region Adding time shit
-                    if (time.Contains ("d"))
-                    {
+                    if (time.Contains ("d")) {
                         var realTime = time.Substring (0, time.Length - 1);
                         muteModel.duration = time;
 
                         System.TimeSpan duration = new System.TimeSpan (int.Parse (realTime), 0, 0, 0);
                         DateTime endMute = System.DateTime.Now.Add (duration);
                         muteModel.muteFinished = endMute;
-                    }
-                    else if (time.Contains ("h"))
-                    {
+                    } else if (time.Contains ("h")) {
                         var realTime = time.Substring (0, time.Length - 1);
                         muteModel.duration = time;
 
                         System.TimeSpan duration = new System.TimeSpan (0, int.Parse (realTime), 0, 0);
                         DateTime endMute = System.DateTime.Now.Add (duration);
                         muteModel.muteFinished = endMute;
-                    }
-                    else if (time.Contains ("m"))
-                    {
+                    } else if (time.Contains ("m")) {
                         var realTime = time.Substring (0, time.Length - 1);
                         muteModel.duration = time;
 
@@ -513,25 +394,19 @@ namespace SchoolProject
                     await ReplyAsync ($"<@{targetFake.Id}> was muted by <@{Context.User.Id}>.\n" +
                         $"Duration: {time}\n" +
                         $"Reason: {reason}");
-                }
-                else
-                {
+                } else {
                     await ReplyAsync ("Please run the setup command before using this command.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("unmute")]
-        public async Task UnmuteAsync (SocketGuildUser target)
-        {
+        public async Task UnmuteAsync (SocketGuildUser target) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 var rec = MongoCRUD.Instance.LoadRecordById<MuteModel> (target.Id.ToString (), "Mutes", "target.id");
                 rec.isMuted = false;
                 MongoCRUD.Instance.InsertRecord ("OldMutes", rec);
@@ -544,24 +419,19 @@ namespace SchoolProject
 
                 await ReplyAsync ($"<@{target.Id}> has been unmuted.");
 
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("mutes")]
-        public async Task MutesAsync ()
-        {
+        public async Task MutesAsync () {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 var recs = MongoCRUD.Instance.LoadRecords<MuteModel> ("Mutes");
                 StringBuilder sb = new StringBuilder ();
-                foreach (var rec in recs)
-                {
+                foreach (var rec in recs) {
                     TimeSpan timeLeft = rec.muteFinished.Subtract (DateTime.UtcNow);
                     string timeLeftTrimmed = string.Format ($"{timeLeft.Days}:{timeLeft.Hours}:{timeLeft.Minutes}:{timeLeft.Seconds}");
                     sb.Append ($"<@{rec.target.id}> - {rec.reason} - {timeLeftTrimmed}\n");
@@ -571,9 +441,7 @@ namespace SchoolProject
                 builder.WithTitle ("Active Mutes:").WithDescription (sb.ToString ()).WithColor (Discord.Color.DarkerGrey);
 
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
@@ -581,53 +449,41 @@ namespace SchoolProject
 
         #region Warn related
         [Command ("warn")]
-        public async Task WarnAsync (SocketGuildUser target, [Remainder] string reason)
-        {
+        public async Task WarnAsync (SocketGuildUser target, [Remainder] string reason) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-                if (recs.Count != 0)
-                {
-                    ModeratorModel moderator = new ModeratorModel
-                    {
+                if (recs.Count != 0) {
+                    ModeratorModel moderator = new ModeratorModel {
                     Username = Context.User.Username,
                     Discriminator = Context.User.DiscriminatorValue,
                     id = Context.User.Id
                     };
-                    foreach (var rec in recs)
-                    {
+                    foreach (var rec in recs) {
                         rec.warnings.Add (
-                            new WarningModel
-                            {
+                            new WarningModel {
                                 warnReason = reason,
                                     dateTime = DateTime.Now.ToString ("F"),
                                     moderator = moderator
                             });
                         MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
                     }
-                }
-                else
-                {
-                    ModeratorModel moderator = new ModeratorModel
-                    {
+                } else {
+                    ModeratorModel moderator = new ModeratorModel {
                         Username = Context.User.Username,
                         Discriminator = Context.User.DiscriminatorValue,
                         id = Context.User.Id
                     };
-                    List<WarningModel> warningModel = new List<WarningModel>
-                    {
-                        new WarningModel
-                        {
+                    List<WarningModel> warningModel = new List<WarningModel> {
+                        new WarningModel {
                         warnReason = reason,
                         dateTime = DateTime.Now.ToString ("F"),
                         moderator = moderator
                         }
                     };
-                    UserWarnModel userWarnModel = new UserWarnModel
-                    {
+                    UserWarnModel userWarnModel = new UserWarnModel {
                         userId = target.Id.ToString (),
                         warnings = warningModel
                     };
@@ -642,32 +498,24 @@ namespace SchoolProject
                 EmbedBuilder builder = new EmbedBuilder ();
                 builder.WithTitle ($"**{target.Username}#{target.Discriminator} has been warned.**").WithDescription ($"Reason: {reason}").WithColor (Discord.Color.Red);
                 await ReplyAsync ("", false, builder.Build ());
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("warnings")]
-        public async Task WarningsAsync (SocketGuildUser target)
-        {
+        public async Task WarningsAsync (SocketGuildUser target) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 int amount = 0;
                 var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
                 StringBuilder sb = new StringBuilder ();
-                if (recs.Count != 0)
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.warnings.Count () != 0)
-                        {
-                            for (int i = 0; i < rec.warnings.Count (); i++)
-                            {
+                if (recs.Count != 0) {
+                    foreach (var rec in recs) {
+                        if (rec.warnings.Count () != 0) {
+                            for (int i = 0; i < rec.warnings.Count (); i++) {
                                 sb.Append ($"**Warning #{i + 1}**: {rec.warnings[i].warnReason} - {rec.warnings[i].dateTime}\n\n");
                             }
                             amount = rec.warnings.Count ();
@@ -676,104 +524,77 @@ namespace SchoolProject
                                 .WithDescription (sb.ToString ()).WithThumbnailUrl (target.GetAvatarUrl ()).WithFooter ($"Total: {amount}");
 
                             await ReplyAsync ("", false, builder.Build ());
-                        }
-                        else
-                        {
+                        } else {
                             await ReplyAsync ("This user has no warnings.");
                         }
 
                     }
 
-                }
-                else
-                {
+                } else {
                     await ReplyAsync ("This user has no warnings.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("warning")]
-        public async Task WarningAsync (SocketGuildUser target, int warning)
-        {
+        public async Task WarningAsync (SocketGuildUser target, int warning) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 warning -= 1;
                 var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-                if (recs.Count != 0)
-                {
-                    foreach (var rec in recs)
-                    {
-                        if (rec.warnings[warning] != null)
-                        {
+                if (recs.Count != 0) {
+                    foreach (var rec in recs) {
+                        if (rec.warnings[warning] != null) {
                             EmbedBuilder builder = new EmbedBuilder ();
                             builder.WithTitle ($"**Warning #{warning + 1} for {target.Username}#{target.Discriminator}**").WithColor (Discord.Color.Red)
                                 .WithDescription ($"Reason: {rec.warnings[warning].warnReason}\n\nTime given: {rec.warnings[warning].dateTime}\n\n" +
                                     $"Moderator: {rec.warnings[warning].moderator.Username}#{rec.warnings[warning].moderator.Discriminator}").WithThumbnailUrl (target.GetAvatarUrl ());
 
                             await ReplyAsync ("", false, builder.Build ());
-                        }
-                        else
-                        {
+                        } else {
                             await ReplyAsync ("User's warning doesn't exist.");
                         }
                     }
-                }
-                else
-                {
+                } else {
                     await ReplyAsync ("This user has no warnings.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("rm warning")]
-        public async Task RmWarningAsync (SocketGuildUser target, int warning)
-        {
+        public async Task RmWarningAsync (SocketGuildUser target, int warning) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 warning -= 1;
                 var recs = MongoCRUD.Instance.LoadAllRecordsById<UserWarnModel> (target.Id.ToString (), "Warnings", "_id");
 
-                if (recs.Count != 0)
-                {
-                    foreach (var rec in recs)
-                    {
+                if (recs.Count != 0) {
+                    foreach (var rec in recs) {
                         rec.warnings.Remove (rec.warnings[warning]);
                         MongoCRUD.Instance.UpdateWarning<UserWarnModel> ("Warnings", rec.userId, rec);
                     }
                     await ReplyAsync ("User's warning has been removed.");
-                }
-                else
-                {
+                } else {
                     await ReplyAsync ("This user has no warnings.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
         #endregion
 
         [Command ("clear")]
-        public async Task ClearAsync (int amount)
-        {
+        public async Task ClearAsync (int amount) {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 var messages = await Context.Channel.GetMessagesAsync (amount + 1).FlattenAsync ();
                 await (Context.Channel as SocketTextChannel).DeleteMessagesAsync (messages);
                 var msg = await ReplyAsync ($"{amount} messages cleared.");
@@ -781,22 +602,17 @@ namespace SchoolProject
                 await Task.Delay (2000);
 
                 await msg.DeleteAsync ();
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("softban")]
-        public async Task SoftbanAsync (SocketGuildUser user, [Remainder] string reason)
-        {
+        public async Task SoftbanAsync (SocketGuildUser user, [Remainder] string reason) {
             var user1 = Context.User as SocketGuildUser;
             var staffRole = user1.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
-                if (DiscordBot.Instance.currentServer != null)
-                {
+            if (staffRole != null) {
+                if (DiscordBot.Instance.currentServer != null) {
 
                     EmbedBuilder builder = new EmbedBuilder ();
                     builder.WithTitle ($"**{user.Username}#{user.Discriminator} has been soft banned.**").WithColor (Discord.Color.Red);
@@ -810,33 +626,25 @@ namespace SchoolProject
                     await DiscordBot.Instance.currentServer.RemoveBanAsync (user);
                     await ReplyAsync ("", false, builder.Build ());
 
-                }
-                else
-                {
+                } else {
                     await ReplyAsync ("Please run the setup command before using this command.");
                 }
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }
 
         [Command ("setup")]
-        public async Task SetupAsync ()
-        {
+        public async Task SetupAsync () {
             var user = Context.User as SocketGuildUser;
             var staffRole = user.Roles.FirstOrDefault (x => x.Name == "Staff");
-            if (staffRole != null)
-            {
+            if (staffRole != null) {
                 DiscordBot.Instance.currentServer = Context.Guild;
 
                 _ = Mute.Instance.CheckMutesAsync ();
 
                 await ReplyAsync ("Setup complete.");
-            }
-            else
-            {
+            } else {
                 await ReplyAsync ("You do not have permission to use this command.");
             }
         }

@@ -5,21 +5,16 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
-namespace SchoolProject
-{
+namespace SchoolProject {
     //This is the MongoCRUD class. This is where we have all methods relating to Mongo DB interactions.
-    public class MongoCRUD
-    {
+    public class MongoCRUD {
         public string database = "OEA";
         private static MongoCRUD instance;
         private IMongoDatabase db;
 
-        public static MongoCRUD Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
+        public static MongoCRUD Instance {
+            get {
+                if (instance == null) {
                     instance = new MongoCRUD ();
                 }
 
@@ -27,95 +22,81 @@ namespace SchoolProject
             }
         }
 
-        public MongoCRUD ()
-        {
+        public MongoCRUD () {
 
             var client = new MongoClient ("mongodb+srv://high:everythingIsAwesome@highcluster.tdcb9.mongodb.net/OEA?retryWrites=true&w=majority");
             db = client.GetDatabase (database);
         }
 
-        public void InsertRecord<T> (string table, T record)
-        {
+        public void InsertRecord<T> (string table, T record) {
             var collection = db.GetCollection<T> (table);
             collection.InsertOne (record);
         }
 
-        public T LoadRecordById<T> (string org, string table, string filterThing)
-        {
+        public T LoadRecordById<T> (string org, string table, string filterThing) {
             var collection = db.GetCollection<T> (table);
             var filter = Builders<T>.Filter.Eq (filterThing, org);
 
             return collection.Find (filter).First ();
         }
-        public List<T> LoadAllRecordsById<T> (string sorter, string table, string filterThing)
-        {
+        public List<T> LoadAllRecordsById<T> (string sorter, string table, string filterThing) {
             var collection = db.GetCollection<T> (table);
             var filter = Builders<T>.Filter.Eq (filterThing, sorter);
 
             return collection.Find (filter).ToList ();
         }
-        public List<T> LoadRecords<T> (string table)
-        {
+        public List<T> LoadRecords<T> (string table) {
             var collection = db.GetCollection<T> (table);
 
             return collection.Find (new BsonDocument ()).ToList ();
         }
 
-        public void UpsertRecord<T> (string table, string id, T record)
-        {
+        public void UpsertRecord<T> (string table, string id, T record) {
             var collection = db.GetCollection<T> (table);
 
             var result = collection.ReplaceOne (
                 new BsonDocument ("_id", id),
                 record,
-                new ReplaceOptions
-                {
+                new ReplaceOptions {
                     IsUpsert = true
                 });
         }
 
-        public void DeleteMute<T> (DateTime dateTime)
-        {
+        public void DeleteMute<T> (DateTime dateTime) {
             var collection = db.GetCollection<T> ("Mutes");
             var filter = Builders<T>.Filter.Eq ("_id", dateTime);
             collection.DeleteOne (filter);
         }
 
-        public void Delete<T> (string table, string id)
-        {
+        public void Delete<T> (string table, string id) {
             var collection = db.GetCollection<T> (table);
             var filter = Builders<T>.Filter.Eq ("_id", id);
             collection.DeleteOne (filter);
-        }   
-        public void QueryOrgs<OrgModel>(string table, string id)
-        {
-            var collection = db.GetCollection<OrgModel>(table);
-            var filter = Builders<OrgModel>.Filter.Eq("warnings.", id);
-            var result = (collection.Find(filter).First());
-
-            collection.DeleteOne(filter);
         }
-        public void UpdateWarning<UserWarnModel> (string table, string id, UserWarnModel record)
-        {
+        public void QueryOrgs<OrgModel> (string table, string id) {
+            var collection = db.GetCollection<OrgModel> (table);
+            var filter = Builders<OrgModel>.Filter.Eq ("warnings.", id);
+            var result = (collection.Find (filter).First ());
+
+            collection.DeleteOne (filter);
+        }
+        public void UpdateWarning<UserWarnModel> (string table, string id, UserWarnModel record) {
             var collection = db.GetCollection<UserWarnModel> (table);
 
             var result = collection.ReplaceOne (
                 new BsonDocument ("_id", id),
                 record,
-                new ReplaceOptions
-                {
+                new ReplaceOptions {
                     IsUpsert = true
                 });
         }
-        public void UpdateAlias<OrgModel>(string table, string id, OrgModel record)
-        {
-            var collection = db.GetCollection<OrgModel>(table);
+        public void UpdateAlias<OrgModel> (string table, string id, OrgModel record) {
+            var collection = db.GetCollection<OrgModel> (table);
 
-            var result = collection.ReplaceOne(
-                new BsonDocument("OrgName", id),
+            var result = collection.ReplaceOne (
+                new BsonDocument ("OrgName", id),
                 record,
-                new ReplaceOptions
-                {
+                new ReplaceOptions {
                     IsUpsert = true
                 });
         }

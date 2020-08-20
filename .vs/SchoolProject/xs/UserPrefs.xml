@@ -1,0 +1,28 @@
+﻿<Properties StartupConfiguration="{C71C80F7-8545-41E0-95EA-A40EAF3CA2AB}|Default">
+  <MonoDevelop.Ide.ItemProperties.SchoolProject PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="SchoolProject/Program.cs">
+    <Files>
+      <File FileName="SchoolProject/Commands.cs" Line="68" Column="56" />
+      <File FileName="SchoolProject/Program.cs" Line="54" Column="91" />
+      <File FileName="SchoolProject/Models/OrgModel.cs" />
+      <File FileName="SchoolProject/MongoCRUD.cs" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="SchoolProject" expanded="True" selected="True">
+            <Node name="SchoolProject" expanded="True">
+              <Node name="Models" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
